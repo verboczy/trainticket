@@ -1,0 +1,477 @@
+package trainticketautomata;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+public class TrainTicketAutomata implements ITrainticketAutomata {
+
+	private List<String> ticketCodes;
+	private Map<String, Integer[]> stationMap;
+	private List<String[]> soldOutTickets;
+	private Map<Integer, Integer> changeCash;
+	private List<Integer> denominationList;
+	private static final String CODE_FILE = "resources/codes.txt";
+	private static final String STATION_FILE = "resources/stations.txt";
+	private static final int PRICE_PER_KM = 10;
+
+	private String code = "";
+	private String fromStation;
+	private String toStation;
+	private String leavingTime;
+
+	private static int id = 0;
+
+	public TrainTicketAutomata() {
+		ticketCodes = new ArrayList<>();
+		stationMap = new HashMap<>();
+		soldOutTickets = new ArrayList<>();
+		denominationList = new ArrayList<>();
+		changeCash = new HashMap<>();
+		initializeChangeCashMap();
+	}
+
+	private void initializeChangeCashMap() {
+		changeCash.clear();
+
+		changeCash.put(5, 100);
+		changeCash.put(10, 100);
+		changeCash.put(20, 100);
+		changeCash.put(50, 100);
+		changeCash.put(100, 50);
+		changeCash.put(200, 50);
+		changeCash.put(500, 30);
+		changeCash.put(1000, 20);
+		changeCash.put(2000, 15);
+		changeCash.put(5000, 10);
+		changeCash.put(10000, 5);
+
+		denominationList.add(10000);
+		denominationList.add(5000);
+		denominationList.add(2000);
+		denominationList.add(1000);
+		denominationList.add(500);
+		denominationList.add(200);
+		denominationList.add(100);
+		denominationList.add(50);
+		denominationList.add(20);
+		denominationList.add(10);
+		denominationList.add(5);
+
+	}
+
+	private void printHelp() {
+		System.out.println("Please choose from services: ");
+		System.out.println("0. Print ticket purchased on the internet");
+		System.out.println("1. Purchase ticket");
+	}
+
+	@Override
+	public int chooseFunction() {
+		printHelp();
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int choice = -1;
+
+		while (choice != 0 && choice != 1) {
+			try {
+				choice = Integer.parseInt(br.readLine());
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return choice;
+	}
+
+	private void loadCodes() {
+		BufferedReader br = null;
+		FileReader fr = null;
+		try {
+			fr = new FileReader(CODE_FILE);
+			br = new BufferedReader(fr);
+			String currentLine;
+			boolean finished = false;
+			while ((currentLine = br.readLine()) != null && !finished) {
+				ticketCodes.add(currentLine);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+				if (fr != null)
+					fr.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	private void updateCodeList() {
+		FileWriter fw = null;
+		BufferedWriter bw = null;
+		try {
+			fw = new FileWriter(CODE_FILE);
+			bw = new BufferedWriter(fw);
+
+			for (String ticketCode : ticketCodes) {
+				bw.write(ticketCode + "\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (bw != null)
+					bw.close();
+				if (fw != null)
+					fw.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public boolean grantCode() {
+
+		loadCodes();
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			String currentLine = br.readLine();
+			if (ticketCodes.contains(currentLine)) {
+				code = currentLine;
+				ticketCodes.remove(currentLine);
+				updateCodeList();
+
+				return true;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	private void loadStations() {
+		BufferedReader br = null;
+		FileReader fr = null;
+		try {
+			fr = new FileReader(STATION_FILE);
+			br = new BufferedReader(fr);
+			String currentLine;
+			boolean finished = false;
+			while ((currentLine = br.readLine()) != null && !finished) {
+				String[] lineArray = currentLine.split(";");
+				Integer[] positions = { Integer.parseInt(lineArray[1]), Integer.parseInt(lineArray[2]) };
+				stationMap.put(lineArray[0], positions);
+				// stationList.add(currentLine);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+				if (fr != null)
+					fr.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public boolean fromStation() {
+		loadStations();
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			String currentLine = br.readLine();
+			if (stationMap.containsKey(currentLine)) {
+				fromStation = currentLine;
+				
+				return true;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean toStation() {
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			String currentLine = br.readLine();
+			if (stationMap.containsKey(currentLine) && !currentLine.equals(fromStation)) {
+				toStation = currentLine;
+				return true;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean leavingTime() {
+
+		System.out.println("Every train travels from 7:00 to 21:00, in every 2 hours.");
+
+		List<String> timeList = new ArrayList<>();
+
+		for (int i = 7; i <= 21; i += 2) {
+			StringBuilder sb = new StringBuilder();
+			timeList.add(sb.append(i).append(":00").toString());
+		}
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			String currentLine = br.readLine();
+			if (timeList.contains(currentLine)) {
+				leavingTime = currentLine;
+				return true;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+
+	@Override
+	public boolean hasEmptySeat() {
+
+		String[] travelArray = { fromStation, toStation, leavingTime };
+
+		if (soldOutTickets.contains(travelArray)) {
+			return false;
+		}
+
+		Random rand = new Random();
+		int randInt = rand.nextInt(10); // 0-9
+
+		if (randInt >= 8) {
+			soldOutTickets.add(travelArray);
+			return false;
+		}
+
+		return true;
+	}
+
+	private void printPurchase() {
+		FileWriter fw = null;
+		BufferedWriter bw = null;
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("resources/ticket").append(id++).append(".txt");
+
+		try {
+			fw = new FileWriter(sb.toString());
+			bw = new BufferedWriter(fw);
+
+			bw.write("From: " + fromStation + "\n");
+			bw.write("To: " + toStation + "\n");
+			bw.write("Leaving: " + leavingTime);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (bw != null)
+					bw.close();
+				if (fw != null)
+					fw.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	private void printCode() {
+		FileWriter fw = null;
+		BufferedWriter bw = null;
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("resources/ticket").append(code).append(".txt");
+
+		try {
+			fw = new FileWriter(sb.toString());
+			bw = new BufferedWriter(fw);
+
+			bw.write(code);
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (bw != null)
+					bw.close();
+				if (fw != null)
+					fw.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public String printTicket() {
+
+		if ("".equals(code)) {
+			printPurchase();
+		} else {
+			printCode();
+		}
+
+		return null;
+	}
+
+	@Override
+	public boolean userExit() {
+		return false;
+	}
+
+	private boolean paymentWithCash(int price) {
+		int amountOfCash = 0;
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			String currentLine = br.readLine();
+			amountOfCash = Integer.parseInt(currentLine);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		if (amountOfCash < price) {
+			return false;
+		} else if (amountOfCash == price) {
+			return true;
+		} else {
+			return changeHandle(price, amountOfCash);
+		}
+	}
+
+	private boolean changeHandle(int price, int amountOfCash) {
+		int remainingAmount = amountOfCash - price;
+		Map<Integer, Integer> helperMap = new HashMap<>();
+
+		for (Integer denomination : denominationList) {
+			boolean autamotaHasDenomination = changeCash.get(denomination) > 0;
+			while (remainingAmount >= denomination && autamotaHasDenomination) {
+				remainingAmount -= denomination;
+				int previousValue = 0;
+				if (helperMap.containsKey(denomination)) {
+					previousValue = helperMap.get(denomination);
+				}
+				int thisValue = previousValue + 1;
+				helperMap.put(denomination, thisValue);
+				autamotaHasDenomination = (changeCash.get(denomination) - thisValue) > 0;
+			}
+		}
+
+		if (remainingAmount != 0) {
+			return false;
+		}
+		else {
+			for (Map.Entry<Integer, Integer> entry : helperMap.entrySet()) {
+				int oldValue = changeCash.get(entry.getKey());
+				int difference = entry.getValue();
+				System.out.println("money: " + difference * entry.getKey());
+				changeCash.put(entry.getKey(), oldValue - difference);
+			}
+			
+			return true;
+		}
+	}
+
+	private boolean paymentWithCreditCard(int price) {
+		int moneyToTransfer = 0;
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			String currentLine = br.readLine();
+			moneyToTransfer = Integer.parseInt(currentLine);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return moneyToTransfer == price;
+	}
+
+	@Override
+	public boolean payment() {
+		boolean success = false;
+		System.out.println("Choose payment type: ");
+		System.out.println("0. Credit card");
+		System.out.println("1. Cash");
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			String currentLine = br.readLine();
+			if (!"0".equals(currentLine) && !"1".equals(currentLine)) {
+				return false;
+			}
+			int price = computePrice();
+			System.out.println("Price: " + price);
+			if ("0".equals(currentLine)) {
+				success = paymentWithCreditCard(price);
+			} else if ("1".equals(currentLine)) {
+				success = paymentWithCash(price);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return success;
+	}
+
+	private int roundToZeroOrFive(int value) {
+		int newValue;
+		int modulo = value % 5;
+
+		if (modulo <= 2) {
+			newValue = value - modulo;
+		} else {
+			newValue = value + 5 - modulo;
+		}
+
+		return newValue;
+	}
+
+	private int computePrice() {
+
+		int price;
+		Integer[] fromPosition = stationMap.get(fromStation);
+		int x1 = fromPosition[0];
+		int y1 = fromPosition[1];
+
+		System.out.println("toStation: " + toStation);
+		Integer[] toPosition = stationMap.get(toStation);
+		System.out.println(stationMap.get(toStation).length);
+		int x2 = toPosition[0];
+		System.out.println(x2);
+		int y2 = toPosition[1];
+
+		float distance;
+
+		distance = (float) Math.sqrt(((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+
+		price = (int) distance * PRICE_PER_KM;
+
+		return roundToZeroOrFive(price);
+	}
+
+}
