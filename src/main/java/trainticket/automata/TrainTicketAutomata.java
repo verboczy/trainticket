@@ -5,22 +5,26 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import trainticket.userinterface.ConsoleUserInterface;
+import trainticket.userinterface.IUserInterface;
+
 public class TrainTicketAutomata implements ITrainticketAutomata {
+
+	private IUserInterface userInterface = null;
 
 	private List<String> ticketCodes;
 	private Map<String, Integer[]> stationMap;
 	private List<String[]> soldOutTickets;
 	private Map<Integer, Integer> changeCash;
 	private List<Integer> denominationList;
-	private static final String CODE_FILE = "resources/codes.txt";
-	private static final String STATION_FILE = "resources/stations.txt";
+	private static final String CODE_FILE = "src/main/resources/codes.txt";
+	private static final String STATION_FILE = "src/main/resources/stations.txt";
 	private static final int PRICE_PER_KM = 10;
 
 	private String code = "";
@@ -31,6 +35,24 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	private static int id = 0;
 
 	public TrainTicketAutomata() {
+		userInterface = new ConsoleUserInterface();
+		initialization();
+	}
+
+	public TrainTicketAutomata(int type) {
+		switch (type) {
+		case 0:
+			userInterface = new ConsoleUserInterface();
+			break;
+
+		default:
+			userInterface = new ConsoleUserInterface();
+			break;
+		}
+		initialization();
+	}
+
+	private void initialization() {
 		ticketCodes = new ArrayList<>();
 		stationMap = new HashMap<>();
 		soldOutTickets = new ArrayList<>();
@@ -68,30 +90,23 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 
 	}
 
-	private void printHelp() {
-		System.out.println("Please choose from services: ");
-		System.out.println("0. Print ticket purchased on the internet");
-		System.out.println("1. Purchase ticket");
-	}
-
+	/*
+	 * private void printHelp() {
+	 * System.out.println("Please choose from services: ");
+	 * System.out.println("0. Print ticket purchased on the internet");
+	 * System.out.println("1. Purchase ticket"); }
+	 */
 	@Override
 	public int chooseFunction() {
-		printHelp();
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		int choice = -1;
 
 		while (choice != 0 && choice != 1) {
-			try {
-				choice = Integer.parseInt(br.readLine());
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			choice = userInterface.getFunction();
 		}
 
 		return choice;
+
 	}
 
 	private void loadCodes() {
@@ -148,18 +163,13 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 
 		loadCodes();
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			String currentLine = br.readLine();
-			if (ticketCodes.contains(currentLine)) {
-				code = currentLine;
-				ticketCodes.remove(currentLine);
-				updateCodeList();
+		String currentLine = userInterface.getCode();
+		if (ticketCodes.contains(currentLine)) {
+			code = currentLine;
+			ticketCodes.remove(currentLine);
+			updateCodeList();
 
-				return true;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+			return true;
 		}
 
 		return false;
@@ -197,16 +207,11 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	public boolean fromStation() {
 		loadStations();
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			String currentLine = br.readLine();
-			if (stationMap.containsKey(currentLine)) {
-				fromStation = currentLine;
-				
-				return true;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		String currentLine = userInterface.getInitialStation();
+		if (stationMap.containsKey(currentLine)) {
+			fromStation = currentLine;
+
+			return true;
 		}
 
 		return false;
@@ -215,15 +220,10 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	@Override
 	public boolean toStation() {
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			String currentLine = br.readLine();
-			if (stationMap.containsKey(currentLine) && !currentLine.equals(fromStation)) {
-				toStation = currentLine;
-				return true;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		String currentLine = userInterface.getDestinationStation();
+		if (stationMap.containsKey(currentLine) && !currentLine.equals(fromStation)) {
+			toStation = currentLine;
+			return true;
 		}
 
 		return false;
@@ -241,15 +241,10 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 			timeList.add(sb.append(i).append(":00").toString());
 		}
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			String currentLine = br.readLine();
-			if (timeList.contains(currentLine)) {
-				leavingTime = currentLine;
-				return true;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		String currentLine = userInterface.getLeavingTime();
+		if (timeList.contains(currentLine)) {
+			leavingTime = currentLine;
+			return true;
 		}
 
 		return false;
@@ -347,15 +342,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	}
 
 	private boolean paymentWithCash(int price) {
-		int amountOfCash = 0;
-
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			String currentLine = br.readLine();
-			amountOfCash = Integer.parseInt(currentLine);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		int amountOfCash = userInterface.getCash();
 
 		if (amountOfCash < price) {
 			return false;
@@ -386,53 +373,41 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 
 		if (remainingAmount != 0) {
 			return false;
-		}
-		else {
+		} else {
 			for (Map.Entry<Integer, Integer> entry : helperMap.entrySet()) {
 				int oldValue = changeCash.get(entry.getKey());
 				int difference = entry.getValue();
 				System.out.println("money: " + difference * entry.getKey());
 				changeCash.put(entry.getKey(), oldValue - difference);
 			}
-			
+
 			return true;
 		}
 	}
 
 	private boolean paymentWithCreditCard(int price) {
-		int moneyToTransfer = 0;
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			String currentLine = br.readLine();
-			moneyToTransfer = Integer.parseInt(currentLine);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
+		int moneyToTransfer = userInterface.getMoneyToTransfer();
+
 		return moneyToTransfer == price;
 	}
 
 	@Override
 	public boolean payment() {
 		boolean success = false;
-		System.out.println("Choose payment type: ");
-		System.out.println("0. Credit card");
-		System.out.println("1. Cash");
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			String currentLine = br.readLine();
-			if (!"0".equals(currentLine) && !"1".equals(currentLine)) {
-				return false;
-			}
-			int price = computePrice();
-			System.out.println("Price: " + price);
-			if ("0".equals(currentLine)) {
-				success = paymentWithCreditCard(price);
-			} else if ("1".equals(currentLine)) {
-				success = paymentWithCash(price);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		// System.out.println("Choose payment type: ");
+		// System.out.println("0. Credit card");
+		// System.out.println("1. Cash");
+
+		String currentLine = userInterface.getPaymentType();
+		if (!"0".equals(currentLine) && !"1".equals(currentLine)) {
+			return false;
+		}
+		int price = computePrice();
+		// System.out.println("Price: " + price);
+		if ("0".equals(currentLine)) {
+			success = paymentWithCreditCard(price);
+		} else if ("1".equals(currentLine)) {
+			success = paymentWithCash(price);
 		}
 
 		return success;

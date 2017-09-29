@@ -16,6 +16,10 @@ public interface IUserInterface {
 	
 	// 0: cash
 	// 1: credit card
-	int getPaymentType();
+	String getPaymentType();
+	
+	int getCash();
+	
+	int getMoneyToTransfer();
 
 }
