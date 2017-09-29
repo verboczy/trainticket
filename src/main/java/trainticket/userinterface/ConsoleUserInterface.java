@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class ConsoleUserInterface implements IUserInterface {
+public class ConsoleUserInterface implements IUserInputInterface {
 
 	@Override
 	public int getFunction() {

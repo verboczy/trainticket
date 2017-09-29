@@ -1,6 +1,6 @@
 package trainticket.userinterface;
 
-public interface IUserInterface {
+public interface IUserInputInterface {
 	
 	// 0: Internet ticket
 	// 1: ticket purchase
@@ -14,8 +14,8 @@ public interface IUserInterface {
 	
 	String getLeavingTime();
 	
-	// 0: cash
-	// 1: credit card
+	// 0: credit card
+	// 1: cash
 	String getPaymentType();
 	
 	int getCash();

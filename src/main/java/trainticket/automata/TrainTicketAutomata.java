@@ -11,12 +11,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import trainticket.userinterface.ConsoleOutputInterface;
 import trainticket.userinterface.ConsoleUserInterface;
-import trainticket.userinterface.IUserInterface;
+import trainticket.userinterface.IUserInputInterface;
+import trainticket.userinterface.IUserOutputInterface;
 
 public class TrainTicketAutomata implements ITrainticketAutomata {
 
-	private IUserInterface userInterface = null;
+	private IUserInputInterface userInterface = null;
+	private IUserOutputInterface userOutput = null;
 
 	private List<String> ticketCodes;
 	private Map<String, Integer[]> stationMap;
@@ -36,6 +39,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 
 	public TrainTicketAutomata() {
 		userInterface = new ConsoleUserInterface();
+		userOutput = new ConsoleOutputInterface();
 		initialization();
 	}
 
@@ -43,10 +47,12 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		switch (type) {
 		case 0:
 			userInterface = new ConsoleUserInterface();
+			userOutput = new ConsoleOutputInterface();
 			break;
 
 		default:
 			userInterface = new ConsoleUserInterface();
+			userOutput = new ConsoleOutputInterface();
 			break;
 		}
 		initialization();
@@ -90,15 +96,12 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 
 	}
 
-	/*
-	 * private void printHelp() {
-	 * System.out.println("Please choose from services: ");
-	 * System.out.println("0. Print ticket purchased on the internet");
-	 * System.out.println("1. Purchase ticket"); }
-	 */
+
 	@Override
 	public int chooseFunction() {
 
+		userOutput.printTypeSeletionHelp();
+		
 		int choice = -1;
 
 		while (choice != 0 && choice != 1) {
@@ -162,6 +165,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	public boolean grantCode() {
 
 		loadCodes();
+		
+		userOutput.printGrantCode();
 
 		String currentLine = userInterface.getCode();
 		if (ticketCodes.contains(currentLine)) {
@@ -206,6 +211,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	@Override
 	public boolean fromStation() {
 		loadStations();
+		
+		userOutput.printFromStation();
 
 		String currentLine = userInterface.getInitialStation();
 		if (stationMap.containsKey(currentLine)) {
@@ -219,6 +226,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 
 	@Override
 	public boolean toStation() {
+		userOutput.printToStation();
 
 		String currentLine = userInterface.getDestinationStation();
 		if (stationMap.containsKey(currentLine) && !currentLine.equals(fromStation)) {
@@ -231,9 +239,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 
 	@Override
 	public boolean leavingTime() {
-
-		System.out.println("Every train travels from 7:00 to 21:00, in every 2 hours.");
-
+		userOutput.printLeavingTime();
+		
 		List<String> timeList = new ArrayList<>();
 
 		for (int i = 7; i <= 21; i += 2) {
@@ -275,7 +282,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		BufferedWriter bw = null;
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("resources/ticket").append(id++).append(".txt");
+		sb.append("src/main/resources/ticket").append(id++).append(".txt");
 
 		try {
 			fw = new FileWriter(sb.toString());
@@ -303,7 +310,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		BufferedWriter bw = null;
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("resources/ticket").append(code).append(".txt");
+		sb.append("src/main/resources/ticket").append(code).append(".txt");
 
 		try {
 			fw = new FileWriter(sb.toString());
@@ -332,6 +339,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		} else {
 			printCode();
 		}
+		
+		userOutput.printThanks();
 
 		return null;
 	}
@@ -358,8 +367,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		Map<Integer, Integer> helperMap = new HashMap<>();
 
 		for (Integer denomination : denominationList) {
-			boolean autamotaHasDenomination = changeCash.get(denomination) > 0;
-			while (remainingAmount >= denomination && autamotaHasDenomination) {
+			boolean automataHasDenomination = changeCash.get(denomination) > 0;
+			while (remainingAmount >= denomination && automataHasDenomination) {
 				remainingAmount -= denomination;
 				int previousValue = 0;
 				if (helperMap.containsKey(denomination)) {
@@ -367,19 +376,21 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 				}
 				int thisValue = previousValue + 1;
 				helperMap.put(denomination, thisValue);
-				autamotaHasDenomination = (changeCash.get(denomination) - thisValue) > 0;
+				automataHasDenomination = (changeCash.get(denomination) - thisValue) > 0;
 			}
 		}
 
 		if (remainingAmount != 0) {
+			userOutput.printCannotReturnChange();
 			return false;
 		} else {
 			for (Map.Entry<Integer, Integer> entry : helperMap.entrySet()) {
 				int oldValue = changeCash.get(entry.getKey());
 				int difference = entry.getValue();
-				System.out.println("money: " + difference * entry.getKey());
 				changeCash.put(entry.getKey(), oldValue - difference);
 			}
+			
+			userOutput.printChange(amountOfCash - price);
 
 			return true;
 		}
@@ -394,16 +405,16 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	@Override
 	public boolean payment() {
 		boolean success = false;
-		// System.out.println("Choose payment type: ");
-		// System.out.println("0. Credit card");
-		// System.out.println("1. Cash");
+
+		userOutput.printPaymentSelectionHelp();
 
 		String currentLine = userInterface.getPaymentType();
 		if (!"0".equals(currentLine) && !"1".equals(currentLine)) {
 			return false;
 		}
 		int price = computePrice();
-		// System.out.println("Price: " + price);
+		userOutput.printAmount(price);
+		
 		if ("0".equals(currentLine)) {
 			success = paymentWithCreditCard(price);
 		} else if ("1".equals(currentLine)) {
@@ -433,11 +444,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		int x1 = fromPosition[0];
 		int y1 = fromPosition[1];
 
-		System.out.println("toStation: " + toStation);
 		Integer[] toPosition = stationMap.get(toStation);
-		System.out.println(stationMap.get(toStation).length);
 		int x2 = toPosition[0];
-		System.out.println(x2);
 		int y2 = toPosition[1];
 
 		float distance;
