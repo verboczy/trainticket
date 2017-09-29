@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import trainticket.userinterface.ConsoleOutputInterface;
 import trainticket.userinterface.ConsoleUserInterface;
@@ -21,14 +20,17 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	private IUserInputInterface userInterface = null;
 	private IUserOutputInterface userOutput = null;
 
+	private Map<Triplet, Integer> availableSeatsOnTrain;
+	
 	private List<String> ticketCodes;
 	private Map<String, Integer[]> stationMap;
-	private List<String[]> soldOutTickets;
 	private Map<Integer, Integer> changeCash;
 	private List<Integer> denominationList;
 	private static final String CODE_FILE = "src/main/resources/codes.txt";
 	private static final String STATION_FILE = "src/main/resources/stations.txt";
+	
 	private static final int PRICE_PER_KM = 10;
+	private static final int SEAT_COUNT = 1;
 
 	private String code = "";
 	private String fromStation;
@@ -61,9 +63,9 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	private void initialization() {
 		ticketCodes = new ArrayList<>();
 		stationMap = new HashMap<>();
-		soldOutTickets = new ArrayList<>();
 		denominationList = new ArrayList<>();
 		changeCash = new HashMap<>();
+		availableSeatsOnTrain = new HashMap<>();
 		initializeChangeCashMap();
 	}
 
@@ -259,23 +261,23 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 
 	@Override
 	public boolean hasEmptySeat() {
-
-		String[] travelArray = { fromStation, toStation, leavingTime };
-
-		if (soldOutTickets.contains(travelArray)) {
+		Triplet key = new Triplet(fromStation, toStation, leavingTime);
+		int available = SEAT_COUNT;
+		if (availableSeatsOnTrain.containsKey(key)) {
+			available = availableSeatsOnTrain.get(key);
+		}
+		
+		if (available <= 0) {
+			userOutput.printNoMoreSeat(key.getFrom(), key.getTo(), key.getTime());
 			return false;
 		}
-
-		Random rand = new Random();
-		int randInt = rand.nextInt(10); // 0-9
-
-		if (randInt >= 8) {
-			soldOutTickets.add(travelArray);
-			return false;
-		}
-
+		
+		available--;
+		availableSeatsOnTrain.put(key, available);
+		
 		return true;
 	}
+	
 
 	private void printPurchase() {
 		FileWriter fw = null;
@@ -455,6 +457,57 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		price = (int) distance * PRICE_PER_KM;
 
 		return roundToZeroOrFive(price);
+	}
+	
+	private class Triplet {
+		private String from;
+		private String to;
+		private String time;
+		
+		public Triplet(String from, String to, String time) {
+			this.from = from;
+			this.to = to;
+			this.time = time;
+		}
+
+		public String getFrom() {
+			return from;
+		}
+
+		public String getTo() {
+			return to;
+		}
+
+		public String getTime() {
+			return time;
+		}
+		
+		
+		@Override
+		public boolean equals(Object obj) {
+			Triplet that = (Triplet) obj;
+			
+			if (!this.getFrom().equals(that.getFrom())) {
+				return false;
+			}
+			if (!this.getTo().equals(that.getTo())) {
+				return false;
+			}
+			if (!this.getTime().equals(that.getTime())) {
+				return false;
+			}
+			
+			return true;
+		}
+		
+		@Override
+		public int hashCode() {
+			int f = this.getFrom().hashCode();
+			int t1 = this.getTo().hashCode();
+			int t2 = this.getTime().hashCode();
+			return f + t1 + t2;
+		}
+		
 	}
 
 }

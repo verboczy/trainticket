@@ -12,6 +12,8 @@ public interface IUserOutputInterface {
 	
 	void printLeavingTime();
 	
+	void printNoMoreSeat(String from, String to, String time);
+	
 	void printThanks();
 	
 	void printPaymentSelectionHelp();

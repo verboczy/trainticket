@@ -27,18 +27,19 @@ public class TrainticketAutomataLogic {
 
 		trainticketAutomata = new TrainTicketAutomata();
 
-		int function = chooseFunction();
+		while (true) {
+			int function = chooseFunction();
 
-		// internet ticket
-		if (function == 0) {
-			internetTicket();
-		}
-		// ticket purchase
-		else if (function == 1) {
-			ticketPurchase();
+			// internet ticket
+			if (function == 0) {
+				internetTicket();
+			}
+			// ticket purchase
+			else if (function == 1) {
+				ticketPurchase();
+			}
 		}
 	}
-	
 
 	private int chooseFunction() {
 
@@ -49,8 +50,7 @@ public class TrainticketAutomataLogic {
 
 		return function;
 	}
-	
-	
+
 	private void ticketPurchase() {
 		boolean fromChecked = false;
 		while (!fromChecked) {
@@ -81,8 +81,7 @@ public class TrainticketAutomataLogic {
 
 		trainticketAutomata.printTicket();
 	}
-	
-	
+
 	private void internetTicket() {
 
 		boolean validCode = trainticketAutomata.grantCode();

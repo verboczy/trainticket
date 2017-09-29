@@ -29,6 +29,11 @@ public class ConsoleOutputInterface implements IUserOutputInterface {
 		System.out.println("Please choose the time for the train!");
 		System.out.println("Every train travels from 7:00 to 21:00, in every 2 hours.");
 	}
+	
+	@Override
+	public void printNoMoreSeat(String from, String to, String time) {
+		System.out.println("Train from " + from + " to " + to + " at " + time + " has no more seat.");
+	}
 
 	@Override
 	public void printThanks() {
@@ -56,7 +61,5 @@ public class ConsoleOutputInterface implements IUserOutputInterface {
 	public void printChange(int change) {
 		System.out.println("Money given back: " + change);
 	}
-
-
 
 }
