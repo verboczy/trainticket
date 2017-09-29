@@ -1,7 +1,7 @@
-package trainticketlogic;
+package trainticket.logic;
 
-import trainticketautomata.ITrainticketAutomata;
-import trainticketautomata.TrainTicketAutomata;
+import trainticket.automata.ITrainticketAutomata;
+import trainticket.automata.TrainTicketAutomata;
 
 public class TrainticketAutomataLogic {
 

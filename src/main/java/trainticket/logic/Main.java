@@ -1,4 +1,4 @@
-package trainticketlogic;
+package trainticket.logic;
 
 public class Main {
 

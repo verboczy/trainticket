@@ -1,4 +1,4 @@
-package trainticketautomata;
+package trainticket.automata;
 
 public interface ITrainticketAutomata {
 
