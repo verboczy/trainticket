@@ -44,6 +44,11 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		userOutput = new ConsoleOutputInterface();
 		initialization();
 	}
+	
+	public TrainTicketAutomata(IUserInputInterface inputInterface, IUserOutputInterface outputInterface) {
+		this.userInterface = inputInterface;
+		this.userOutput = outputInterface;
+	}
 
 	public TrainTicketAutomata(int type) {
 		switch (type) {
@@ -58,6 +63,10 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 			break;
 		}
 		initialization();
+	}
+	
+	public void setUserInterface(IUserInputInterface userInterface) {
+		this.userInterface = userInterface; 
 	}
 
 	private void initialization() {

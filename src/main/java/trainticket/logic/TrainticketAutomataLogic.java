@@ -2,17 +2,18 @@ package trainticket.logic;
 
 import trainticket.automata.ITrainticketAutomata;
 import trainticket.automata.TrainTicketAutomata;
+import trainticket.userinterface.ConsoleOutputInterface;
+import trainticket.userinterface.IUserInputInterface;
 
 public class TrainticketAutomataLogic {
 
 	private static TrainticketAutomataLogic instance = null;
-
-	private ITrainticketAutomata trainticketAutomata;
-
+	private ITrainticketAutomata trainticketAutomata = null;
+	
 	private TrainticketAutomataLogic() {
 
 	}
-
+	
 	public static TrainticketAutomataLogic getInstance() {
 
 		if (instance == null) {
@@ -22,11 +23,17 @@ public class TrainticketAutomataLogic {
 		return instance;
 
 	}
+	
+	public void setUserInterface(IUserInputInterface userInterface) {
+		trainticketAutomata = new TrainTicketAutomata(userInterface, new ConsoleOutputInterface());
+	}
 
-	public void start() {
+	public void start() {		
 
-		trainticketAutomata = new TrainTicketAutomata();
-
+		if (trainticketAutomata == null) {
+			trainticketAutomata = new TrainTicketAutomata();
+		}
+		
 		while (true) {
 			int function = chooseFunction();
 
