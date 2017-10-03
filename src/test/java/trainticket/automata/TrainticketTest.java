@@ -7,7 +7,7 @@ import trainticket.logic.TrainticketAutomataLogic;
 import trainticket.userinterface.TestInterface;
 
 
-@GraphWalker(value = "random(edge_coverage(100))", start = "Start")
+@GraphWalker(value = "random(edge_coverage(100))")
 public class TrainticketTest extends ExecutionContext implements TrainticketTester {
 
 	private TrainticketAutomataLogic sut = TrainticketAutomataLogic.getInstance();
@@ -72,6 +72,7 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	@Override
 	public void e_chooseInternetTicket() {
 		// TODO Auto-generated method stub
+		testInterface.setFunction(0);
 
 	}
 
@@ -114,6 +115,7 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	@Override
 	public void e_chooseTicketPurchase() {
 		// TODO Auto-generated method stub
+		testInterface.setFunction(1);
 
 	}
 
