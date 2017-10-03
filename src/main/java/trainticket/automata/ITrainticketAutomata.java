@@ -1,23 +1,26 @@
 package trainticket.automata;
 
+import trainticket.enums.Function;
+import trainticket.enums.PaymentType;
+
 public interface ITrainticketAutomata {
 
-	public int chooseFunction();
+	public Function chooseFunction(Function function);
 	
-	public boolean userExit();
+	public boolean grantCode(String code);
 	
-	public boolean grantCode();
+	public boolean fromStation(String from);
 	
-	public boolean fromStation();
+	public boolean toStation(String to);
 	
-	public boolean toStation();
+	public boolean leavingTime(String time);
 	
-	public boolean leavingTime();
+	public PaymentType paymentType(PaymentType paymentType);
 	
-	public boolean hasEmptySeat();
+	public boolean payWithCash(int amount);
 	
-	public boolean payment();
+	public boolean payWithCreditCard(int moneyToTransfer);
 	
-	public String printTicket();
+	public boolean printTicket();
 	
 }

@@ -10,65 +10,301 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import trainticket.userinterface.ConsoleOutputInterface;
-import trainticket.userinterface.ConsoleUserInterface;
-import trainticket.userinterface.IUserInputInterface;
-import trainticket.userinterface.IUserOutputInterface;
+import trainticket.enums.Function;
+import trainticket.enums.PaymentType;
 
 public class TrainTicketAutomata implements ITrainticketAutomata {
-
-	private IUserInputInterface userInterface = null;
-	private IUserOutputInterface userOutput = null;
-
-	private Map<Triplet, Integer> availableSeatsOnTrain;
+	
+	private static final String CODE_FILE = "src/main/resources/codes.txt";
+	private static final String STATION_FILE = "src/main/resources/stations.txt";
+	private static final int PRICE_PER_KM = 10;
 	
 	private List<String> ticketCodes;
 	private Map<String, Integer[]> stationMap;
 	private Map<Integer, Integer> changeCash;
 	private List<Integer> denominationList;
-	private static final String CODE_FILE = "src/main/resources/codes.txt";
-	private static final String STATION_FILE = "src/main/resources/stations.txt";
-	
-	private static final int PRICE_PER_KM = 10;
-	private static final int SEAT_COUNT = 1;
 
-	private String code = "";
+	private Function function;
+	private PaymentType paymentType;
+	private String code;
 	private String fromStation;
 	private String toStation;
 	private String leavingTime;
-
+	private int price; 
 	private static int id = 0;
-
+	
 	public TrainTicketAutomata() {
-		userInterface = new ConsoleUserInterface();
-		userOutput = new ConsoleOutputInterface();
-		initialization();
-	}
-
-	public TrainTicketAutomata(int type) {
-		switch (type) {
-		case 0:
-			userInterface = new ConsoleUserInterface();
-			userOutput = new ConsoleOutputInterface();
-			break;
-
-		default:
-			userInterface = new ConsoleUserInterface();
-			userOutput = new ConsoleOutputInterface();
-			break;
-		}
-		initialization();
-	}
-
-	private void initialization() {
 		ticketCodes = new ArrayList<>();
 		stationMap = new HashMap<>();
-		denominationList = new ArrayList<>();
 		changeCash = new HashMap<>();
-		availableSeatsOnTrain = new HashMap<>();
+		denominationList = new ArrayList<>();
+		
 		initializeChangeCashMap();
 	}
+	
+	@Override
+	public Function chooseFunction(Function function) {
+		
+		this.function = function;			
+		return this.function;
+		
+	}
+	
 
+	@Override
+	public boolean grantCode(String code) {	
+		
+		loadCodes();
+				
+		if (ticketCodes.contains(code)) {
+			this.code = code;
+			ticketCodes.remove(code);
+			updateCodeList();
+
+			return true;
+		}		
+		
+		return false;
+	}
+	
+
+	@Override
+	public boolean fromStation(String from) {
+		
+		loadStations();
+		
+		if (stationMap.containsKey(from)) {
+			fromStation = from;
+			return true;
+		}
+		
+		return false;
+	}
+	
+
+	@Override
+	public boolean toStation(String to) {
+
+		if (stationMap.containsKey(to) && !to.equals(fromStation)) {
+			toStation = to;
+			return true;
+		}
+
+		return false;
+	}
+	
+
+	@Override
+	public boolean leavingTime(String time) {
+		
+		List<String> timeList = new ArrayList<>();
+
+		for (int i = 7; i <= 21; i += 2) {
+			StringBuilder sb = new StringBuilder();
+			timeList.add(sb.append(i).append(":00").toString());
+		}
+
+		if (timeList.contains(time)) {
+			leavingTime = time;
+			return true;
+		}
+
+		return false;
+	}
+	
+
+	@Override
+	public PaymentType paymentType(PaymentType paymentType) {
+
+		price = computePrice();
+		
+		this.paymentType = paymentType;
+		return this.paymentType;
+		
+	}
+	
+
+	@Override
+	public boolean payWithCash(int amount) {
+
+		if (amount < price) {
+			return false;
+		} else if (amount == price) {
+			return true;
+		} else {
+			return changeHandle(price, amount);
+		}
+		
+	}
+	
+
+	@Override
+	public boolean payWithCreditCard(int moneyToTransfer) {
+		
+		return moneyToTransfer == price;
+		
+	}
+
+	@Override
+	public boolean printTicket() {
+		
+		switch (function) {
+		case INTERNET_TICKET:
+			return printInternetTicket();
+			
+		case PURCHASE_TICKET:
+			return printPurchaseTicket();
+			
+		default:
+			return false;
+		}		
+	}
+	
+	
+	private void loadCodes() {
+		BufferedReader br = null;
+		FileReader fr = null;
+		try {
+			fr = new FileReader(CODE_FILE);
+			br = new BufferedReader(fr);
+			String currentLine;
+			boolean finished = false;
+			while ((currentLine = br.readLine()) != null && !finished) {
+				ticketCodes.add(currentLine);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+				if (fr != null)
+					fr.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	private void updateCodeList() {
+		FileWriter fw = null;
+		BufferedWriter bw = null;
+		try {
+			fw = new FileWriter(CODE_FILE);
+			bw = new BufferedWriter(fw);
+
+			for (String ticketCode : ticketCodes) {
+				bw.write(ticketCode + "\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (bw != null)
+					bw.close();
+				if (fw != null)
+					fw.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	private void loadStations() {
+		BufferedReader br = null;
+		FileReader fr = null;
+		try {
+			fr = new FileReader(STATION_FILE);
+			br = new BufferedReader(fr);
+			String currentLine;
+			boolean finished = false;
+			while ((currentLine = br.readLine()) != null && !finished) {
+				String[] lineArray = currentLine.split(";");
+				Integer[] positions = { Integer.parseInt(lineArray[1]), Integer.parseInt(lineArray[2]) };
+				stationMap.put(lineArray[0], positions);
+				// stationList.add(currentLine);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (br != null)
+					br.close();
+				if (fr != null)
+					fr.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	private int computePrice() {
+
+		int price;
+		Integer[] fromPosition = stationMap.get(fromStation);
+		int x1 = fromPosition[0];
+		int y1 = fromPosition[1];
+
+		Integer[] toPosition = stationMap.get(toStation);
+		int x2 = toPosition[0];
+		int y2 = toPosition[1];
+
+		float distance;
+
+		distance = (float) Math.sqrt(((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+
+		price = (int) distance * PRICE_PER_KM;
+
+		return roundToZeroOrFive(price);
+		
+	}
+	
+	private int roundToZeroOrFive(int value) {
+		int newValue;
+		int modulo = value % 5;
+
+		if (modulo <= 2) {
+			newValue = value - modulo;
+		} else {
+			newValue = value + 5 - modulo;
+		}
+
+		return newValue;
+	}
+	
+	private boolean changeHandle(int price, int amountOfCash) {
+		int remainingAmount = amountOfCash - price;
+		Map<Integer, Integer> helperMap = new HashMap<>();
+
+		for (Integer denomination : denominationList) {
+			boolean automataHasDenomination = changeCash.get(denomination) > 0;
+			while (remainingAmount >= denomination && automataHasDenomination) {
+				remainingAmount -= denomination;
+				int previousValue = 0;
+				if (helperMap.containsKey(denomination)) {
+					previousValue = helperMap.get(denomination);
+				}
+				int thisValue = previousValue + 1;
+				helperMap.put(denomination, thisValue);
+				automataHasDenomination = (changeCash.get(denomination) - thisValue) > 0;
+			}
+		}
+
+		if (remainingAmount != 0) {
+			
+			return false;
+			
+		} else {
+			for (Map.Entry<Integer, Integer> entry : helperMap.entrySet()) {
+				int oldValue = changeCash.get(entry.getKey());
+				int difference = entry.getValue();
+				changeCash.put(entry.getKey(), oldValue - difference);
+			}
+			
+			return true;
+		}
+	}
+	
 	private void initializeChangeCashMap() {
 		changeCash.clear();
 
@@ -97,60 +333,24 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		denominationList.add(5);
 
 	}
-
-
-	@Override
-	public int chooseFunction() {
-
-		userOutput.printTypeSeletionHelp();
+	
+	private boolean printInternetTicket() {
+		boolean alright = true;
 		
-		int choice = -1;
-
-		while (choice != 0 && choice != 1) {
-			choice = userInterface.getFunction();
-		}
-
-		return choice;
-
-	}
-
-	private void loadCodes() {
-		BufferedReader br = null;
-		FileReader fr = null;
-		try {
-			fr = new FileReader(CODE_FILE);
-			br = new BufferedReader(fr);
-			String currentLine;
-			boolean finished = false;
-			while ((currentLine = br.readLine()) != null && !finished) {
-				ticketCodes.add(currentLine);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null)
-					br.close();
-				if (fr != null)
-					fr.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-	}
-
-	private void updateCodeList() {
 		FileWriter fw = null;
 		BufferedWriter bw = null;
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("src/main/resources/ticket").append(code).append(".txt");
+
 		try {
-			fw = new FileWriter(CODE_FILE);
+			fw = new FileWriter(sb.toString());
 			bw = new BufferedWriter(fw);
 
-			for (String ticketCode : ticketCodes) {
-				bw.write(ticketCode + "\n");
-			}
+			bw.write(code);
 		} catch (IOException e) {
 			e.printStackTrace();
+			alright = false;
 		} finally {
 			try {
 				if (bw != null)
@@ -159,127 +359,16 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 					fw.close();
 			} catch (IOException ex) {
 				ex.printStackTrace();
+				alright = false;
 			}
 		}
-	}
-
-	@Override
-	public boolean grantCode() {
-
-		loadCodes();
 		
-		userOutput.printGrantCode();
-
-		String currentLine = userInterface.getCode();
-		if (ticketCodes.contains(currentLine)) {
-			code = currentLine;
-			ticketCodes.remove(currentLine);
-			updateCodeList();
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private void loadStations() {
-		BufferedReader br = null;
-		FileReader fr = null;
-		try {
-			fr = new FileReader(STATION_FILE);
-			br = new BufferedReader(fr);
-			String currentLine;
-			boolean finished = false;
-			while ((currentLine = br.readLine()) != null && !finished) {
-				String[] lineArray = currentLine.split(";");
-				Integer[] positions = { Integer.parseInt(lineArray[1]), Integer.parseInt(lineArray[2]) };
-				stationMap.put(lineArray[0], positions);
-				// stationList.add(currentLine);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (br != null)
-					br.close();
-				if (fr != null)
-					fr.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-	}
-
-	@Override
-	public boolean fromStation() {
-		loadStations();
-		
-		userOutput.printFromStation();
-
-		String currentLine = userInterface.getInitialStation();
-		if (stationMap.containsKey(currentLine)) {
-			fromStation = currentLine;
-
-			return true;
-		}
-
-		return false;
-	}
-
-	@Override
-	public boolean toStation() {
-		userOutput.printToStation();
-
-		String currentLine = userInterface.getDestinationStation();
-		if (stationMap.containsKey(currentLine) && !currentLine.equals(fromStation)) {
-			toStation = currentLine;
-			return true;
-		}
-
-		return false;
-	}
-
-	@Override
-	public boolean leavingTime() {
-		userOutput.printLeavingTime();
-		
-		List<String> timeList = new ArrayList<>();
-
-		for (int i = 7; i <= 21; i += 2) {
-			StringBuilder sb = new StringBuilder();
-			timeList.add(sb.append(i).append(":00").toString());
-		}
-
-		String currentLine = userInterface.getLeavingTime();
-		if (timeList.contains(currentLine)) {
-			leavingTime = currentLine;
-			return true;
-		}
-
-		return false;
-	}
-
-	@Override
-	public boolean hasEmptySeat() {
-		Triplet key = new Triplet(fromStation, toStation, leavingTime);
-		int available = SEAT_COUNT;
-		if (availableSeatsOnTrain.containsKey(key)) {
-			available = availableSeatsOnTrain.get(key);
-		}
-		
-		if (available <= 0) {
-			userOutput.printNoMoreSeat(key.getFrom(), key.getTo(), key.getTime());
-			return false;
-		}
-		
-		available--;
-		availableSeatsOnTrain.put(key, available);
-		
-		return true;
+		return alright;
 	}
 	
-
-	private void printPurchase() {
+	private boolean printPurchaseTicket() {
+		boolean alright = true;
+		
 		FileWriter fw = null;
 		BufferedWriter bw = null;
 
@@ -295,6 +384,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 			bw.write("Leaving: " + leavingTime);
 		} catch (IOException e) {
 			e.printStackTrace();
+			alright = false;
 		} finally {
 			try {
 				if (bw != null)
@@ -303,211 +393,11 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 					fw.close();
 			} catch (IOException ex) {
 				ex.printStackTrace();
+				alright = false;
 			}
-		}
-	}
-
-	private void printCode() {
-		FileWriter fw = null;
-		BufferedWriter bw = null;
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("src/main/resources/ticket").append(code).append(".txt");
-
-		try {
-			fw = new FileWriter(sb.toString());
-			bw = new BufferedWriter(fw);
-
-			bw.write(code);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (bw != null)
-					bw.close();
-				if (fw != null)
-					fw.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-	}
-
-	@Override
-	public String printTicket() {
-
-		if ("".equals(code)) {
-			printPurchase();
-		} else {
-			printCode();
 		}
 		
-		userOutput.printThanks();
-
-		return null;
-	}
-
-	@Override
-	public boolean userExit() {
-		return false;
-	}
-
-	private boolean paymentWithCash(int price) {
-		int amountOfCash = userInterface.getCash();
-
-		if (amountOfCash < price) {
-			return false;
-		} else if (amountOfCash == price) {
-			return true;
-		} else {
-			return changeHandle(price, amountOfCash);
-		}
-	}
-
-	private boolean changeHandle(int price, int amountOfCash) {
-		int remainingAmount = amountOfCash - price;
-		Map<Integer, Integer> helperMap = new HashMap<>();
-
-		for (Integer denomination : denominationList) {
-			boolean automataHasDenomination = changeCash.get(denomination) > 0;
-			while (remainingAmount >= denomination && automataHasDenomination) {
-				remainingAmount -= denomination;
-				int previousValue = 0;
-				if (helperMap.containsKey(denomination)) {
-					previousValue = helperMap.get(denomination);
-				}
-				int thisValue = previousValue + 1;
-				helperMap.put(denomination, thisValue);
-				automataHasDenomination = (changeCash.get(denomination) - thisValue) > 0;
-			}
-		}
-
-		if (remainingAmount != 0) {
-			userOutput.printCannotReturnChange();
-			return false;
-		} else {
-			for (Map.Entry<Integer, Integer> entry : helperMap.entrySet()) {
-				int oldValue = changeCash.get(entry.getKey());
-				int difference = entry.getValue();
-				changeCash.put(entry.getKey(), oldValue - difference);
-			}
-			
-			userOutput.printChange(amountOfCash - price);
-
-			return true;
-		}
-	}
-
-	private boolean paymentWithCreditCard(int price) {
-		int moneyToTransfer = userInterface.getMoneyToTransfer();
-
-		return moneyToTransfer == price;
-	}
-
-	@Override
-	public boolean payment() {
-		boolean success = false;
-
-		userOutput.printPaymentSelectionHelp();
-
-		String currentLine = userInterface.getPaymentType();
-		if (!"0".equals(currentLine) && !"1".equals(currentLine)) {
-			return false;
-		}
-		int price = computePrice();
-		userOutput.printAmount(price);
-		
-		if ("0".equals(currentLine)) {
-			success = paymentWithCreditCard(price);
-		} else if ("1".equals(currentLine)) {
-			success = paymentWithCash(price);
-		}
-
-		return success;
-	}
-
-	private int roundToZeroOrFive(int value) {
-		int newValue;
-		int modulo = value % 5;
-
-		if (modulo <= 2) {
-			newValue = value - modulo;
-		} else {
-			newValue = value + 5 - modulo;
-		}
-
-		return newValue;
-	}
-
-	private int computePrice() {
-
-		int price;
-		Integer[] fromPosition = stationMap.get(fromStation);
-		int x1 = fromPosition[0];
-		int y1 = fromPosition[1];
-
-		Integer[] toPosition = stationMap.get(toStation);
-		int x2 = toPosition[0];
-		int y2 = toPosition[1];
-
-		float distance;
-
-		distance = (float) Math.sqrt(((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
-
-		price = (int) distance * PRICE_PER_KM;
-
-		return roundToZeroOrFive(price);
+		return alright;
 	}
 	
-	private class Triplet {
-		private String from;
-		private String to;
-		private String time;
-		
-		public Triplet(String from, String to, String time) {
-			this.from = from;
-			this.to = to;
-			this.time = time;
-		}
-
-		public String getFrom() {
-			return from;
-		}
-
-		public String getTo() {
-			return to;
-		}
-
-		public String getTime() {
-			return time;
-		}
-		
-		
-		@Override
-		public boolean equals(Object obj) {
-			Triplet that = (Triplet) obj;
-			
-			if (!this.getFrom().equals(that.getFrom())) {
-				return false;
-			}
-			if (!this.getTo().equals(that.getTo())) {
-				return false;
-			}
-			if (!this.getTime().equals(that.getTime())) {
-				return false;
-			}
-			
-			return true;
-		}
-		
-		@Override
-		public int hashCode() {
-			int f = this.getFrom().hashCode();
-			int t1 = this.getTo().hashCode();
-			int t2 = this.getTime().hashCode();
-			return f + t1 + t2;
-		}
-		
-	}
-
 }
