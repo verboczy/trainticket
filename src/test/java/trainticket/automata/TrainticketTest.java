@@ -3,24 +3,13 @@ package trainticket.automata;
 import org.graphwalker.core.machine.ExecutionContext;
 import org.graphwalker.java.annotation.GraphWalker;
 
-import trainticket.logic.TrainticketAutomataLogic;
-import trainticket.userinterface.TestInterface;
-
 
 @GraphWalker(value = "random(edge_coverage(100))")
 public class TrainticketTest extends ExecutionContext implements TrainticketTester {
 
-	private TrainticketAutomataLogic sut = TrainticketAutomataLogic.getInstance();
-	private TestInterface testInterface;
-
-	public TrainticketTest() {
-		testInterface = new TestInterface();
-		sut.setUserInterface(testInterface);
-	}
-
 	@Override
 	public void e_returnToWaiting() {
-		testInterface.initialize();
+		
 	}
 
 	@Override
@@ -30,32 +19,28 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 
 	@Override
 	public void e_toInvalid() {
-		testInterface.setDestStation("NoSuchCity");
+		
 	}
 
+
 	@Override
-	public void e_creditcardSuccessful() {
+	public void e_whenInvalid() {
 		
 	}
 
 	@Override
-	public void e_whenInvalid() {
-		testInterface.setLeavingTime("NoSuchTime");
-	}
-
-	@Override
 	public void e_cash() {
-		testInterface.setPaymentType("1");
+		
 	}
 
 	@Override
 	public void e_cashError() {
-		testInterface.setCash(-1);
+		
 	}
 
 	@Override
 	public void e_toValid() {
-		testInterface.setDestStation("Budapest");
+		
 	}
 
 	@Override
@@ -72,8 +57,6 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	@Override
 	public void e_chooseInternetTicket() {
 		// TODO Auto-generated method stub
-		testInterface.setFunction(0);
-
 	}
 
 	@Override
@@ -115,15 +98,8 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	@Override
 	public void e_chooseTicketPurchase() {
 		// TODO Auto-generated method stub
-		testInterface.setFunction(1);
-
 	}
 
-	@Override
-	public void e_validCode() {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public void e_invalidCode() {
@@ -150,12 +126,6 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	}
 
 	@Override
-	public void e_cashSuccessful() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public void v_choosePaymentType() {
 		// TODO Auto-generated method stub
 
@@ -169,8 +139,25 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 
 	@Override
 	public void e_Init() {
-		testInterface.initialize();
-		sut.start();
+		
+	}
+
+	@Override
+	public void e_printInternetTicket() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void e_printCashTicket() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void e_printCreditcardTicket() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
