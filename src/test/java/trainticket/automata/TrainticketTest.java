@@ -3,161 +3,172 @@ package trainticket.automata;
 import org.graphwalker.core.machine.ExecutionContext;
 import org.graphwalker.java.annotation.GraphWalker;
 
+import trainticket.enums.Function;
+import trainticket.enums.PaymentType;
+
+import org.junit.Assert;
+
 
 @GraphWalker(value = "random(edge_coverage(100))")
 public class TrainticketTest extends ExecutionContext implements TrainticketTester {
-
+	
+	ITestInterface sut; 
+	private int id = 0;
+	private Function function;
+	private boolean to;
+	private boolean from;
+	private boolean time;
+	private PaymentType paymentType;
+	private boolean printed;
+	
+	private final String validFrom = "Budapest";
+	private final String validTo = "Szeged";
+	private final String validTime = "7:00";
+	
 	@Override
-	public void e_returnToWaiting() {
-		
+	public void e_Init() {
+		sut = new TrainTicketAutomata();
 	}
 
 	@Override
 	public void v_chooseFunction() {
 		System.out.println("Choose function!");
-	}
-
-	@Override
-	public void e_toInvalid() {
 		
+		to = false;
+		from = false;
+		time = false;
+		printed = false;
 	}
-
-
-	@Override
-	public void e_whenInvalid() {
-		
-	}
-
-	@Override
-	public void e_cash() {
-		
-	}
-
-	@Override
-	public void e_cashError() {
-		
-	}
-
-	@Override
-	public void e_toValid() {
-		
-	}
-
-	@Override
-	public void v_to() {
-		System.out.println("TO station");
-	}
-
-	@Override
-	public void e_creditCardError() {
-		// TODO Auto-generated method stub
-
-	}
-
+	
 	@Override
 	public void e_chooseInternetTicket() {
-		// TODO Auto-generated method stub
+		function = sut.chooseFunction(Function.INTERNET_TICKET);
 	}
-
+	
 	@Override
-	public void v_from() {
-		// TODO Auto-generated method stub
-
+	public void v_internetTicket() {
+		Assert.assertEquals(function, Function.INTERNET_TICKET);
 	}
-
+	
 	@Override
-	public void e_fromInvalid() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void v_printTicket() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void v_creditcard() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void v_cash() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void e_fromValid() {
-		// TODO Auto-generated method stub
-
+	public void e_invalidCode() {
+		sut.grantCode("invalid code");
 	}
 
 	@Override
 	public void e_chooseTicketPurchase() {
-		// TODO Auto-generated method stub
+		function = sut.chooseFunction(Function.PURCHASE_TICKET);
 	}
-
+	
+	@Override
+	public void v_from() {
+		Assert.assertEquals(function, Function.PURCHASE_TICKET);
+	}
 
 	@Override
-	public void e_invalidCode() {
-		// TODO Auto-generated method stub
-
+	public void e_fromInvalid() {
+		sut.fromStation("invalid from");
 	}
+	
+	@Override
+	public void e_fromValid() {
+		from = sut.fromStation(validFrom);
+	}
+	
+	@Override
+	public void v_to() {
+		Assert.assertTrue(from);
+	}
+	
+	@Override
+	public void e_toInvalid() {
+		sut.toStation(validFrom); // because the from and to cannot be the same
+	}	
 
+	@Override
+	public void e_toValid() {
+		to = sut.toStation(validTo);
+	}
+	
 	@Override
 	public void v_when() {
-		// TODO Auto-generated method stub
-
+		Assert.assertTrue(to);
 	}
 
 	@Override
-	public void v_internetTicket() {
-		// TODO Auto-generated method stub
-
+	public void e_whenInvalid() {
+		sut.leavingTime("invalid time");
 	}
-
+	
 	@Override
 	public void e_whenValid() {
-		// TODO Auto-generated method stub
-
+		time = sut.leavingTime(validTime);
+	}
+	
+	@Override
+	public void v_choosePaymentType() {
+		Assert.assertTrue(time);
 	}
 
 	@Override
-	public void v_choosePaymentType() {
-		// TODO Auto-generated method stub
+	public void e_cash() {
+		paymentType = sut.paymentType(PaymentType.CASH);
+	}
+	
+	@Override
+	public void v_cash() {
+		Assert.assertEquals(paymentType, PaymentType.CASH);
+	}
 
+	@Override
+	public void e_cashError() {
+		sut.payWithCash(-1);
 	}
 
 	@Override
 	public void e_creditcard() {
-		// TODO Auto-generated method stub
-
+		paymentType = sut.paymentType(PaymentType.CREDITCARD);
 	}
-
+	
 	@Override
-	public void e_Init() {
-		
+	public void v_creditcard() {
+		Assert.assertEquals(paymentType, PaymentType.CREDITCARD);
+	}
+	
+	@Override
+	public void e_creditCardError() {
+		sut.payWithCreditCard(-1);
 	}
 
 	@Override
 	public void e_printInternetTicket() {
-		// TODO Auto-generated method stub
-		
+		sut.grantCode("9876543210");
+		id++;
+		printed = sut.printTicket((new Integer(id)).toString());
 	}
 
 	@Override
 	public void e_printCashTicket() {
-		// TODO Auto-generated method stub
-		
+		sut.payWithCash(5000);
+		id++;
+		printed = sut.printTicket((new Integer(id)).toString());
 	}
 
 	@Override
 	public void e_printCreditcardTicket() {
-		// TODO Auto-generated method stub
-		
+		// TODO sut.payWithCreditCard(sut.getPrice());
+		id++;
+		printed = sut.printTicket((new Integer(id)).toString());
+	}
+	
+	@Override
+	public void v_printTicket() {
+		Assert.assertTrue(printed);
+	}
+
+	@Override
+	public void e_returnToWaiting() {
+		sut.setToDefault();
 	}
 
 }
