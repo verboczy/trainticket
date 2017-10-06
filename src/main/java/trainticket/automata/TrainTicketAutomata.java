@@ -13,7 +13,7 @@ import java.util.Map;
 import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
-public class TrainTicketAutomata implements ITrainticketAutomata {
+public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface {
 	
 	private static final String CODE_FILE = "src/main/resources/codes.txt";
 	private static final String STATION_FILE = "src/main/resources/stations.txt";
@@ -37,6 +37,22 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		stationMap = new HashMap<>();
 		changeCash = new HashMap<>();
 		denominationList = new ArrayList<>();
+		
+		initializeChangeCashMap();
+	}
+	
+	private void initialize() {
+		ticketCodes.clear();
+		stationMap.clear();
+		changeCash.clear();
+		denominationList.clear();
+		
+		function = null;
+		paymentType = null;
+		code = null;
+		fromStation = null;
+		toStation = null;
+		leavingTime = null;
 		
 		initializeChangeCashMap();
 	}
@@ -399,6 +415,16 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		denominationList.add(10);
 		denominationList.add(5);
 
+	}
+
+	@Override
+	public void setToDefault() {
+		initialize();
+	}
+
+	@Override
+	public void setChangeCashInAutomata(Map<Integer, Integer> changeCashMap) {
+		this.changeCash = changeCashMap;
 	}
 	
 }
