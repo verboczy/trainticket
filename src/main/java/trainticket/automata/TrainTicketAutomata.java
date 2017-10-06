@@ -30,8 +30,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	private String fromStation;
 	private String toStation;
 	private String leavingTime;
-	private int price; 
-	private static int id = 0;
+	private int price;
 	
 	public TrainTicketAutomata() {
 		ticketCodes = new ArrayList<>();
@@ -146,32 +145,75 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	}
 
 	@Override
-	public boolean printTicket() {
+	public boolean printTicket(String ticketId) {
 		
-		switch (function) {
-		case INTERNET_TICKET:
-			return printInternetTicket();
+		boolean alright = true;
+		
+		FileWriter fw = null;
+		BufferedWriter bw = null;
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("src/main/resources/ticket").append(ticketId).append(".txt");
+
+		try {
+			fw = new FileWriter(sb.toString());
+			bw = new BufferedWriter(fw);
+			StringBuilder fileContent = new StringBuilder();
 			
-		case PURCHASE_TICKET:
-			return printPurchaseTicket();
+			switch (function) {
+			case INTERNET_TICKET:
+				fileContent.append(code);
+				break;
+				
+			case PURCHASE_TICKET:
+				fileContent.append("From: ").append(fromStation).append("\n");
+				fileContent.append("To: ").append(toStation).append("\n");
+				fileContent.append("Leaves: ").append(leavingTime);
+				break;
+
+			default:
+				fileContent.append("TICKET");
+				break;
+			}
 			
-		default:
-			return false;
-		}		
+			bw.write(fileContent.toString());
+
+		} catch (IOException e) {
+			e.printStackTrace();
+			alright = false;
+		} finally {
+			try {
+				if (bw != null)
+					bw.close();
+				if (fw != null)
+					fw.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+				alright = false;
+			}
+		}
+		
+		return alright;
+		
 	}
 	
 	
 	private void loadCodes() {
+		
 		BufferedReader br = null;
 		FileReader fr = null;
+		
 		try {
 			fr = new FileReader(CODE_FILE);
 			br = new BufferedReader(fr);
+			
 			String currentLine;
 			boolean finished = false;
+			
 			while ((currentLine = br.readLine()) != null && !finished) {
 				ticketCodes.add(currentLine);
 			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -184,11 +226,15 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 				ex.printStackTrace();
 			}
 		}
+		
 	}
 	
+	
 	private void updateCodeList() {
+		
 		FileWriter fw = null;
 		BufferedWriter bw = null;
+		
 		try {
 			fw = new FileWriter(CODE_FILE);
 			bw = new BufferedWriter(fw);
@@ -196,6 +242,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 			for (String ticketCode : ticketCodes) {
 				bw.write(ticketCode + "\n");
 			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -208,22 +255,29 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 				ex.printStackTrace();
 			}
 		}
+		
 	}
 	
 	private void loadStations() {
+		
 		BufferedReader br = null;
 		FileReader fr = null;
+		
 		try {
 			fr = new FileReader(STATION_FILE);
 			br = new BufferedReader(fr);
+			
 			String currentLine;
 			boolean finished = false;
+			
 			while ((currentLine = br.readLine()) != null && !finished) {
+				
 				String[] lineArray = currentLine.split(";");
 				Integer[] positions = { Integer.parseInt(lineArray[1]), Integer.parseInt(lineArray[2]) };
 				stationMap.put(lineArray[0], positions);
-				// stationList.add(currentLine);
+				
 			}
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
@@ -236,7 +290,9 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 				ex.printStackTrace();
 			}
 		}
+		
 	}
+	
 	
 	private int computePrice() {
 
@@ -249,17 +305,18 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		int x2 = toPosition[0];
 		int y2 = toPosition[1];
 
-		float distance;
+		int distance;
+		distance = (int) Math.sqrt(((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
 
-		distance = (float) Math.sqrt(((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
-
-		price = (int) distance * PRICE_PER_KM;
+		price = distance * PRICE_PER_KM;
 
 		return roundToZeroOrFive(price);
 		
 	}
 	
+	
 	private int roundToZeroOrFive(int value) {
+		
 		int newValue;
 		int modulo = value % 5;
 
@@ -270,20 +327,28 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		}
 
 		return newValue;
+		
 	}
 	
+	
 	private boolean changeHandle(int price, int amountOfCash) {
+		
 		int remainingAmount = amountOfCash - price;
 		Map<Integer, Integer> helperMap = new HashMap<>();
 
 		for (Integer denomination : denominationList) {
+			
 			boolean automataHasDenomination = changeCash.get(denomination) > 0;
+			
 			while (remainingAmount >= denomination && automataHasDenomination) {
+				
 				remainingAmount -= denomination;
 				int previousValue = 0;
+				
 				if (helperMap.containsKey(denomination)) {
 					previousValue = helperMap.get(denomination);
 				}
+				
 				int thisValue = previousValue + 1;
 				helperMap.put(denomination, thisValue);
 				automataHasDenomination = (changeCash.get(denomination) - thisValue) > 0;
@@ -305,7 +370,9 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		}
 	}
 	
+	
 	private void initializeChangeCashMap() {
+		
 		changeCash.clear();
 
 		changeCash.put(5, 100);
@@ -332,72 +399,6 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		denominationList.add(10);
 		denominationList.add(5);
 
-	}
-	
-	private boolean printInternetTicket() {
-		boolean alright = true;
-		
-		FileWriter fw = null;
-		BufferedWriter bw = null;
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("src/main/resources/ticket").append(code).append(".txt");
-
-		try {
-			fw = new FileWriter(sb.toString());
-			bw = new BufferedWriter(fw);
-
-			bw.write(code);
-		} catch (IOException e) {
-			e.printStackTrace();
-			alright = false;
-		} finally {
-			try {
-				if (bw != null)
-					bw.close();
-				if (fw != null)
-					fw.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				alright = false;
-			}
-		}
-		
-		return alright;
-	}
-	
-	private boolean printPurchaseTicket() {
-		boolean alright = true;
-		
-		FileWriter fw = null;
-		BufferedWriter bw = null;
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("src/main/resources/ticket").append(id++).append(".txt");
-
-		try {
-			fw = new FileWriter(sb.toString());
-			bw = new BufferedWriter(fw);
-
-			bw.write("From: " + fromStation + "\n");
-			bw.write("To: " + toStation + "\n");
-			bw.write("Leaving: " + leavingTime);
-		} catch (IOException e) {
-			e.printStackTrace();
-			alright = false;
-		} finally {
-			try {
-				if (bw != null)
-					bw.close();
-				if (fw != null)
-					fw.close();
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				alright = false;
-			}
-		}
-		
-		return alright;
 	}
 	
 }
