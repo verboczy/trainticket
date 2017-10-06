@@ -21,6 +21,6 @@ public interface ITrainticketAutomata {
 	
 	public boolean payWithCreditCard(int moneyToTransfer);
 	
-	public boolean printTicket();
+	public boolean printTicket(String ticketId);
 	
 }
