@@ -15,15 +15,20 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	ITestInterface sut; 
 	private int id = 0;
 	private Function function;
+	private boolean code;
 	private boolean to;
 	private boolean from;
 	private boolean time;
 	private PaymentType paymentType;
+	private boolean paymentCash;
+	private boolean paymentCreditcard;
 	private boolean printed;
 	
 	private final String validFrom = "Budapest";
 	private final String validTo = "Szeged";
 	private final String validTime = "7:00";
+	
+	private Integer vc = 0;
 	
 	@Override
 	public void e_Init() {
@@ -34,9 +39,12 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	public void v_chooseFunction() {
 		System.out.println("Choose function!");
 		
+		code= false;
 		to = false;
 		from = false;
 		time = false;
+		paymentCash = false;
+		paymentCreditcard = false;
 		printed = false;
 	}
 	
@@ -53,6 +61,35 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	@Override
 	public void e_invalidCode() {
 		sut.grantCode("invalid code");
+	}
+	
+	/**
+	 * Magic. 
+	 * 1 -> 0000000001
+	 * 2 -> 0000000002
+	 * ...
+	 * 10 -> 0000000010
+	 */
+	private String getNextValidCode() {
+		StringBuilder sb = new StringBuilder();
+		vc++;
+		for (int i = 0; i < 10 - vc.toString().length(); i++) {
+			sb.append("0");
+		}
+		
+		sb.append(vc.toString());
+		
+		return sb.toString();
+	}
+	
+	@Override
+	public void e_validCode() {
+		code = sut.grantCode(getNextValidCode());
+	}
+
+	@Override
+	public void v_codeValid() {
+		Assert.assertTrue(code);
 	}
 
 	@Override
@@ -136,27 +173,36 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	}
 	
 	@Override
-	public void e_creditCardError() {
-		sut.payWithCreditCard(-1);
+	public void e_creditcardError() {
+		sut.payWithCreditCard(-1);	
 	}
 
+	@Override
+	public void e_payingWithCash() {
+		paymentCash = sut.payWithCash(5000);
+	}
+	
+	
+	@Override
+	public void e_payingByCreditcard() {
+		// TODO sut.payWithCreditCard(sut.getPrice());
+		paymentCreditcard = true; // TODO
+	}
+	
+	@Override
+	public void v_paymentSuccessful() {
+		boolean success = paymentCash || paymentCreditcard;
+		Assert.assertTrue(success);
+	}
+
+	@Override
+	public void e_printPurchaseTicket() {
+		id++;
+		printed = sut.printTicket((new Integer(id)).toString());
+	}
+	
 	@Override
 	public void e_printInternetTicket() {
-		sut.grantCode("9876543210");
-		id++;
-		printed = sut.printTicket((new Integer(id)).toString());
-	}
-
-	@Override
-	public void e_printCashTicket() {
-		sut.payWithCash(5000);
-		id++;
-		printed = sut.printTicket((new Integer(id)).toString());
-	}
-
-	@Override
-	public void e_printCreditcardTicket() {
-		// TODO sut.payWithCreditCard(sut.getPrice());
 		id++;
 		printed = sut.printTicket((new Integer(id)).toString());
 	}
