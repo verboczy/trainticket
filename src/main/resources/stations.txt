@@ -1,5 +1,5 @@
 Keszthely;80;50
-Pécs;170;100
+PÃ©cs;170;100
 Budapest;25;150
 Szeged;160;350
 Debrecen;40;500

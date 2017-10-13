@@ -330,6 +330,18 @@ public class TrainticketGUI extends Application {
 		refresh();
 	}
 	
+	
+	private void initializeRadioButtons() {
+		
+		rbInternet.setSelected(false);
+		rbPurchase.setSelected(false);
+		rbCash.setSelected(false);
+		rbCreditcard.setSelected(false);
+		rbCash.setDisable(true);		
+		rbCreditcard.setDisable(true);
+		
+	}
+	
 	private void refreshPaymentRadioButton() {
 		rbCash.setDisable(isInternetTicket || !isFromGiven || !isToGiven || !isTimeGiven);
 		rbCreditcard.setDisable(isInternetTicket || !isFromGiven || !isToGiven || !isTimeGiven);
@@ -352,11 +364,17 @@ public class TrainticketGUI extends Application {
 		isCashGiven = false;
 		isCreditcardGiven = false;
 		
+		setInternetDisabled = true;
+		setPaymentDisabled = true;
+		
 		// Refresh print button
 		refreshPrint();
 		
-		// Refresh payment radio buttons
-		refreshPaymentRadioButton();
+		// Set radio buttons into initial state
+		initializeRadioButtons();
+		
+		// Refresh textfields and buttons
+		refresh();
 
 	}
 	
@@ -369,7 +387,7 @@ public class TrainticketGUI extends Application {
 	}
 	
 	private void refresh() {
-		
+		System.out.println(isInternetTicket);
 		bGrantCode.setDisable(!isInternetTicket || setInternetDisabled);
 		tfGrantCode.setDisable(!isInternetTicket || setInternetDisabled);
 		
