@@ -206,7 +206,9 @@ public class TrainticketGUI extends Application {
 				System.out.println(fromTextField);
 				if (!"".equals(fromTextField)) {
 					isFromGiven = trainticketAutomata.fromStation(fromTextField);
-					if (isFromGiven) System.out.println("valid from");
+					if (isFromGiven) { 
+						System.out.println("valid from");
+					}
 				}
 				
 				refreshPaymentRadioButton();
@@ -292,8 +294,8 @@ public class TrainticketGUI extends Application {
 				String creditcardFromTextField = tfCreditcard.getText();
 				System.out.println(creditcardFromTextField);
 				if (!"".equals(creditcardFromTextField)) {
-					int card_no = Integer.parseInt(creditcardFromTextField);
-					isCreditcardGiven = trainticketAutomata.payWithCreditCard(card_no);
+					int cardNo = Integer.parseInt(creditcardFromTextField);
+					isCreditcardGiven = trainticketAutomata.payWithCreditCard(cardNo);
 				}
 				
 				refreshPrint();
