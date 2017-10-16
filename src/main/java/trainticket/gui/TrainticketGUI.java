@@ -104,7 +104,6 @@ public class TrainticketGUI extends Application {
 
 		rbInternet.setUserData("rbInternet");
 		rbInternet.setToggleGroup(groupTicket);
-		//rbInternet.setSelected(true);
 				
 		rbPurchase.setUserData("rbPurchase");
 		rbPurchase.setToggleGroup(groupTicket);
@@ -114,13 +113,12 @@ public class TrainticketGUI extends Application {
 		
 		// Function
 		groupTicket.selectedToggleProperty().addListener(new ChangeListener<Toggle>() {
-
+			
 			@Override
 			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
 				if (groupTicket.getSelectedToggle() != null) {
 					Object userData = groupTicket.getSelectedToggle().getUserData();
-					if (userData != null) {
-						
+					if (userData != null) {						
 						if ("rbInternet".equals(userData)) {
 							trainticketAutomata.chooseFunction(Function.INTERNET_TICKET);
 							isInternetTicket = true;
@@ -130,13 +128,11 @@ public class TrainticketGUI extends Application {
 							trainticketAutomata.chooseFunction(Function.PURCHASE_TICKET);
 							isInternetTicket = false;
 							setInternetDisabled = false;
-						}
-						
+						}						
 						refresh();
 					}
 				}
-			}
-		
+			}		
 		});		
 		
 		
@@ -158,8 +154,7 @@ public class TrainticketGUI extends Application {
 			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue) {
 				if (groupPayment.getSelectedToggle() != null) {
 					Object userData = groupPayment.getSelectedToggle().getUserData();
-					if (userData != null) {
-						
+					if (userData != null) {						
 						if ("rbCash".equals(userData)) {
 							trainticketAutomata.paymentType(PaymentType.CASH);
 							isCashPayment = true;
@@ -169,22 +164,16 @@ public class TrainticketGUI extends Application {
 							trainticketAutomata.paymentType(PaymentType.CREDITCARD);
 							isCashPayment = false;
 							setPaymentDisabled = false;
-						}
-						
+						}						
 						refresh();
 					}
 				}
-			}
-			
+			}			
 		});
 		
 	}
 
-	private void addElementsToPane(GridPane grid) {
-		
-		addRadioButtonToPane(grid);
-		
-		// Add "code" controls
+	private void addCodeControls(GridPane grid) {
 		grid.add(lGrantCode, 0, 1);		
 		grid.add(tfGrantCode, 1, 1);		
 		grid.add(bGrantCode, 2, 1);		
@@ -202,8 +191,9 @@ public class TrainticketGUI extends Application {
 				refreshPrint();
 			}
 		});
-		
-		// Add "from" controls
+	}
+	
+	private void addFromControls(GridPane grid) {
 		grid.add(lFromStation, 0, 2);		
 		grid.add(tfFromStation, 1, 2);		
 		grid.add(bFromStation, 2, 2);		
@@ -223,8 +213,9 @@ public class TrainticketGUI extends Application {
 				refreshPrint();
 			}
 		});
-		
-		// Add "to" controls 
+	}
+	
+	private void addToControls(GridPane grid) {
 		grid.add(lToStation, 0, 3);		
 		grid.add(tfToStation, 1, 3);		
 		grid.add(bToStation, 2, 3);		
@@ -244,8 +235,9 @@ public class TrainticketGUI extends Application {
 				refreshPrint();
 			}
 		});
-		
-		// Add "time" controls
+	}
+	
+	private void addTimeControls(GridPane grid) {
 		grid.add(lTime, 0, 4);		
 		grid.add(tfTime, 1, 4);		
 		grid.add(bTime, 2, 4);		
@@ -265,8 +257,9 @@ public class TrainticketGUI extends Application {
 				refreshPrint();
 			}
 		});
-		
-		// Add "cash" controls
+	}
+	
+	private void addCashControls(GridPane grid) {
 		grid.add(lCash, 0, 6);		
 		grid.add(tfCash, 1, 6);		
 		grid.add(bCash, 2, 6);		
@@ -285,8 +278,9 @@ public class TrainticketGUI extends Application {
 				refreshPrint();
 			}
 		});
-		
-		// Add "creditcard" controls
+	}
+	
+	private void addCreditcardControls(GridPane grid) {
 		grid.add(lCreditcard, 0, 7);		
 		grid.add(tfCreditcard, 1, 7);		
 		grid.add(bCreditcard, 2, 7);		
@@ -305,8 +299,9 @@ public class TrainticketGUI extends Application {
 				refreshPrint();
 			}
 		});
-		
-		// Add "print" button
+	}
+	
+	private void addPrintButton(GridPane grid) {
 		bPrintTicket.setDisable(true);
 		grid.add(bPrintTicket, 1, 8);		
 		bPrintTicket.setOnAction(new EventHandler<ActionEvent>() {
@@ -325,7 +320,33 @@ public class TrainticketGUI extends Application {
 			}
 			
 		});
+	}
+	
+	private void addElementsToPane(GridPane grid) {
 		
+		// Add radioButtons
+		addRadioButtonToPane(grid);
+		
+		// Add "code" controls
+		addCodeControls(grid);
+		
+		// Add "from" controls
+		addFromControls(grid);
+		
+		// Add "to" controls 
+		addToControls(grid);	
+		
+		// Add "time" controls
+		addTimeControls(grid);	
+		
+		// Add "cash" controls
+		addCashControls(grid);	
+		
+		// Add "creditcard" controls
+		addCreditcardControls(grid);	
+		
+		// Add "print" button
+		addPrintButton(grid);		
 		
 		refresh();
 	}
