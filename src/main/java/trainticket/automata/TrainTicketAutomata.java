@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import trainticket.creditcard.CreditcardPayment;
+import trainticket.creditcard.ICreditcardPayment;
 import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
@@ -32,13 +34,27 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 	private String leavingTime;
 	private int price;
 	
+	private ICreditcardPayment creditcardPayment;
+	
 	public TrainTicketAutomata() {
+		creditcardPayment = new CreditcardPayment();
+		
+		createListsAndMaps();
+		
+		initializeChangeCashMap();
+	}
+	
+	public TrainTicketAutomata(ICreditcardPayment creditcardPayment) {
+		this.creditcardPayment = creditcardPayment;
+		
+		createListsAndMaps();
+	}
+	
+	private void createListsAndMaps() {
 		ticketCodes = new ArrayList<>();
 		stationMap = new HashMap<>();
 		changeCash = new HashMap<>();
 		denominationList = new ArrayList<>();
-		
-		initializeChangeCashMap();
 	}
 	
 	private void initialize() {
@@ -154,9 +170,9 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 	
 
 	@Override
-	public boolean payWithCreditCard(int moneyToTransfer) {
+	public boolean payWithCreditCard(String cardNumber) {
 		
-		return moneyToTransfer == price;
+		return creditcardPayment.pay(cardNumber);
 		
 	}
 

@@ -183,7 +183,7 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String codeFromTextField = tfGrantCode.getText();
-				System.out.println(codeFromTextField);
+				//System.out.println(codeFromTextField);
 				if (!"".equals(codeFromTextField)) { 
 					isCodeGiven = trainticketAutomata.grantCode(codeFromTextField);
 				}
@@ -203,7 +203,7 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String fromTextField = tfFromStation.getText();
-				System.out.println(fromTextField);
+				//System.out.println(fromTextField);
 				if (!"".equals(fromTextField)) {
 					isFromGiven = trainticketAutomata.fromStation(fromTextField);
 					if (isFromGiven) { 
@@ -227,7 +227,7 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String toFromTextField = tfToStation.getText();
-				System.out.println(toFromTextField);
+				//System.out.println(toFromTextField);
 				if (!"".equals(toFromTextField)) {
 					isToGiven = trainticketAutomata.toStation(toFromTextField);
 					if (isToGiven) System.out.println("valid to");
@@ -249,7 +249,7 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String timeFromTextField = tfTime.getText();
-				System.out.println(timeFromTextField);
+				//System.out.println(timeFromTextField);
 				if (!"".equals(timeFromTextField)) {
 					isTimeGiven = trainticketAutomata.leavingTime(timeFromTextField);
 					if (isTimeGiven) System.out.println("valid time");
@@ -271,7 +271,7 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String cashFromTextField = tfCash.getText();
-				System.out.println(cashFromTextField);
+				//System.out.println(cashFromTextField);
 				if (!"".equals(cashFromTextField)) {
 					int amount = Integer.parseInt(cashFromTextField);
 					isCashGiven = trainticketAutomata.payWithCash(amount);
@@ -292,10 +292,9 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String creditcardFromTextField = tfCreditcard.getText();
-				System.out.println(creditcardFromTextField);
+				//System.out.println(creditcardFromTextField);
 				if (!"".equals(creditcardFromTextField)) {
-					int cardNo = Integer.parseInt(creditcardFromTextField);
-					isCreditcardGiven = trainticketAutomata.payWithCreditCard(cardNo);
+					isCreditcardGiven = trainticketAutomata.payWithCreditCard(creditcardFromTextField);
 				}
 				
 				refreshPrint();
@@ -410,7 +409,7 @@ public class TrainticketGUI extends Application {
 	}
 	
 	private void refresh() {
-		System.out.println(isInternetTicket);
+		//System.out.println(isInternetTicket);
 		bGrantCode.setDisable(!isInternetTicket || setInternetDisabled);
 		tfGrantCode.setDisable(!isInternetTicket || setInternetDisabled);
 		
@@ -433,6 +432,7 @@ public class TrainticketGUI extends Application {
 	
 	
 	public static void main(String[] args) {
+		
 		launch(args);
 	}
 }
