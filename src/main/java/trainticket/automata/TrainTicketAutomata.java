@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import trainticket.creditcard.CreditcardPayment;
+import trainticket.creditcard.ICreditcardPayment;
 import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
@@ -32,13 +34,27 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 	private String leavingTime;
 	private int price;
 	
+	private ICreditcardPayment creditcardPayment;
+	
 	public TrainTicketAutomata() {
+		creditcardPayment = new CreditcardPayment();
+		
+		createListsAndMaps();
+		
+		initializeChangeCashMap();
+	}
+	
+	public TrainTicketAutomata(ICreditcardPayment creditcardPayment) {
+		this.creditcardPayment = creditcardPayment;
+		
+		createListsAndMaps();
+	}
+	
+	private void createListsAndMaps() {
 		ticketCodes = new ArrayList<>();
 		stationMap = new HashMap<>();
 		changeCash = new HashMap<>();
 		denominationList = new ArrayList<>();
-		
-		initializeChangeCashMap();
 	}
 	
 	private void initialize() {
@@ -154,9 +170,9 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 	
 
 	@Override
-	public boolean payWithCreditCard(int moneyToTransfer) {
+	public boolean payWithCreditCard(String cardNumber) {
 		
-		return moneyToTransfer == price;
+		return creditcardPayment.pay(cardNumber);
 		
 	}
 
@@ -224,9 +240,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 			br = new BufferedReader(fr);
 			
 			String currentLine;
-			boolean finished = false;
 			
-			while ((currentLine = br.readLine()) != null && !finished) {
+			while ((currentLine = br.readLine()) != null) {
 				ticketCodes.add(currentLine);
 			}
 			
@@ -284,9 +299,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 			br = new BufferedReader(fr);
 			
 			String currentLine;
-			boolean finished = false;
 			
-			while ((currentLine = br.readLine()) != null && !finished) {
+			while ((currentLine = br.readLine()) != null) {
 				
 				String[] lineArray = currentLine.split(";");
 				Integer[] positions = { Integer.parseInt(lineArray[1]), Integer.parseInt(lineArray[2]) };
@@ -312,7 +326,6 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 	
 	private int computePrice() {
 
-		int price;
 		Integer[] fromPosition = stationMap.get(fromStation);
 		int x1 = fromPosition[0];
 		int y1 = fromPosition[1];
@@ -322,7 +335,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		int y2 = toPosition[1];
 
 		int distance;
-		distance = (int) Math.sqrt(((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)));
+		distance = (int) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 
 		price = distance * PRICE_PER_KM;
 
