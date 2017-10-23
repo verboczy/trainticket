@@ -232,6 +232,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 	
 	private void loadCodes() {
 		
+		ticketCodes.clear();
+		
 		BufferedReader br = null;
 		FileReader fr = null;
 		

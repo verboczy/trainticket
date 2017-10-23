@@ -1,16 +1,25 @@
 package trainticket.automata;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.graphwalker.core.machine.ExecutionContext;
 import org.graphwalker.java.annotation.GraphWalker;
+import org.junit.Assert;
 
 import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
-import org.junit.Assert;
-
 
 @GraphWalker(value = "random(edge_coverage(100))")
 public class TrainticketTest extends ExecutionContext implements TrainticketTester {
+	
+	private static final String source = "src/test/resources/codes.txt";
+	private static final String target = "src/main/resources/codes.txt";
 	
 	ITestInterface sut; 
 	private int id = 0;
@@ -32,6 +41,15 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	
 	@Override
 	public void e_Init() {
+		Path codePathSource = Paths.get(source);
+		Path codePathTarget = Paths.get(target);
+		
+		try {
+			Files.copy(codePathSource, codePathTarget, REPLACE_EXISTING);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		sut = new TrainTicketAutomata();
 	}
 
@@ -174,7 +192,7 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	
 	@Override
 	public void e_creditcardError() {
-		sut.payWithCreditCard(-1);	
+		sut.payWithCreditCard("not a valid creditcard number");	
 	}
 
 	@Override
@@ -185,8 +203,7 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	
 	@Override
 	public void e_payingByCreditcard() {
-		// TODO sut.payWithCreditCard(sut.getPrice());
-		paymentCreditcard = true; // TODO
+		paymentCreditcard = sut.payWithCreditCard("00000000-00000000");
 	}
 	
 	@Override
