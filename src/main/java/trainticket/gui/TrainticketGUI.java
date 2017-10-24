@@ -183,9 +183,12 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String codeFromTextField = tfGrantCode.getText();
-				//System.out.println(codeFromTextField);
 				if (!"".equals(codeFromTextField)) { 
 					isCodeGiven = trainticketAutomata.grantCode(codeFromTextField);
+				}
+				
+				if (!isCodeGiven) {
+					tfGrantCode.clear();
 				}
 				
 				refreshPrint();
@@ -203,12 +206,12 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String fromTextField = tfFromStation.getText();
-				//System.out.println(fromTextField);
 				if (!"".equals(fromTextField)) {
 					isFromGiven = trainticketAutomata.fromStation(fromTextField);
-					if (isFromGiven) { 
-						System.out.println("valid from");
-					}
+				}
+				
+				if(!isFromGiven) {
+					tfFromStation.clear();
 				}
 				
 				refreshPaymentRadioButton();
@@ -227,10 +230,12 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String toFromTextField = tfToStation.getText();
-				//System.out.println(toFromTextField);
 				if (!"".equals(toFromTextField)) {
 					isToGiven = trainticketAutomata.toStation(toFromTextField);
-					if (isToGiven) System.out.println("valid to");
+				}
+				
+				if (!isToGiven) {
+					tfToStation.clear();
 				}
 				
 				refreshPaymentRadioButton();
@@ -249,10 +254,12 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String timeFromTextField = tfTime.getText();
-				//System.out.println(timeFromTextField);
 				if (!"".equals(timeFromTextField)) {
 					isTimeGiven = trainticketAutomata.leavingTime(timeFromTextField);
-					if (isTimeGiven) System.out.println("valid time");
+				}
+				
+				if (!isTimeGiven) {
+					tfTime.clear();
 				}
 				
 				refreshPaymentRadioButton();
@@ -271,10 +278,13 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String cashFromTextField = tfCash.getText();
-				//System.out.println(cashFromTextField);
 				if (!"".equals(cashFromTextField)) {
 					int amount = Integer.parseInt(cashFromTextField);
 					isCashGiven = trainticketAutomata.payWithCash(amount);
+				}
+				
+				if (!isCashGiven) {
+					tfCash.clear();
 				}
 				
 				refreshPrint();
@@ -292,9 +302,12 @@ public class TrainticketGUI extends Application {
 			public void handle(ActionEvent event) {
 				
 				String creditcardFromTextField = tfCreditcard.getText();
-				//System.out.println(creditcardFromTextField);
 				if (!"".equals(creditcardFromTextField)) {
 					isCreditcardGiven = trainticketAutomata.payWithCreditCard(creditcardFromTextField);
+				}
+				
+				if (!isCreditcardGiven) {
+					tfCreditcard.clear();
 				}
 				
 				refreshPrint();
@@ -435,4 +448,5 @@ public class TrainticketGUI extends Application {
 		
 		launch(args);
 	}
+
 }
