@@ -15,7 +15,7 @@ import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
 
-@GraphWalker(value = "random(edge_coverage(100))")
+//@GraphWalker(value = "random(edge_coverage(100))")
 public class TrainticketTest extends ExecutionContext implements TrainticketTester {
 	
 	private static final String source = "src/test/resources/codes.txt";

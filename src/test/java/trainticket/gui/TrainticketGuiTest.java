@@ -40,7 +40,7 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 		
 	private final String validFrom = "Budapest";
 	private final String validTo = "Szeged";
-	private String validTime = "7:00";
+	private String validTime = "7-00";
 	
 	private Integer vc = 0;
 	
