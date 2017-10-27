@@ -10,54 +10,83 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import trainticket.creditcard.CreditcardPayment;
-import trainticket.creditcard.ICreditcardPayment;
+import trainticket.creditcard.CreditCardPayment;
+import trainticket.creditcard.ICreditCardPayment;
 import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
-public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface {
+public class TrainTicketAutomata implements ITrainticketAutomata {
 	
-	private static final String CODE_FILE = "src/main/resources/codes.txt";
-	private static final String STATION_FILE = "src/main/resources/stations.txt";
+	// Price of the ticket per kilometer.
 	private static final int PRICE_PER_KM = 10;
+
+	// File containing the internet ticket codes.
+	private String codeFile;
+	// File containing the stations and their coordinates.
+	private String stationFile;
+	// Folder where the "printed" ticket can be found.
+	private String ticketFolder;
 	
+	// List containing the internet ticket codes, after it was read.
 	private List<String> ticketCodes;
+	// Map containing the station names as the String key, the values are the coordinates.
 	private Map<String, Integer[]> stationMap;
+	// Map containing the amount of each denomination in the machine. 
 	private Map<Integer, Integer> changeCash;
+	// List containing: 5, 10, 50, 100, 200, 500, 1000, 2000, 5000, 10000.
 	private List<Integer> denominationList;
 
+	// Function can be INTERNET_TICKET or PURCHASE_TICKET.
 	private Function function;
+	// Payment type can be CASH or CREDITCARD.
 	private PaymentType paymentType;
+	// The internet ticket code.
 	private String code;
+	// The initial station.
 	private String fromStation;
+	// The destination.
 	private String toStation;
+	// The time when the train leaves. In the format of: hh-mm.
 	private String leavingTime;
+	// The price of the ticket.
 	private int price;
 	
-	private ICreditcardPayment creditcardPayment;
+	// The service reliable for the credit card payment.
+	private ICreditCardPayment creditCardPayment;
 	
+	
+	/**
+	 * Constructor without parameters, sets default values, and initializes everything.
+	 */
 	public TrainTicketAutomata() {
-		creditcardPayment = new CreditcardPayment();
 		
-		createListsAndMaps();
+		codeFile = "src/main/resources/codes.txt";
+		stationFile = "src/main/resources/stations.txt";
+		ticketFolder = "src/main/resources/ticket";
 		
+		creditCardPayment = new CreditCardPayment();
+		
+		createListsAndMaps();		
 		initializeChangeCashMap();
 	}
 	
-	public TrainTicketAutomata(ICreditcardPayment creditcardPayment) {
-		this.creditcardPayment = creditcardPayment;
-		
-		createListsAndMaps();
-	}
-	
+	/**
+	 * Initializes the lists and maps.
+	 */
 	private void createListsAndMaps() {
+		
 		ticketCodes = new ArrayList<>();
 		stationMap = new HashMap<>();
 		changeCash = new HashMap<>();
 		denominationList = new ArrayList<>();
 	}
 	
+	/**
+	 * Sets the variables into a initial state.
+	 * Lists and maps are empty, strings are null.
+	 */
 	private void initialize() {
+		
 		ticketCodes.clear();
 		stationMap.clear();
 		changeCash.clear();
@@ -73,22 +102,51 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		initializeChangeCashMap();
 	}
 	
+	
+	/**
+	 * Method for setting the payment type.
+	 * @param creditCardPayment
+	 */
+	public void setCreditcardPayment(ICreditCardPayment creditCardPayment) {
+		
+		this.creditCardPayment = creditCardPayment;
+	}
+	
+	/**
+	 * Method for setting the code file.
+	 * @param codeFile contains the internet ticket codes
+	 */
+	public void setCodeFile(String codeFile) {
+		
+		this.codeFile = codeFile;
+	}
+	
+	/**
+	 * Method for setting the folder of the "printed" tickets.
+	 * @param ticketFolder
+	 */
+	public void setTicketFolder(String ticketFolder) {
+		
+		this.ticketFolder = ticketFolder;
+	}
+		
+	
 	@Override
 	public Function chooseFunction(Function function) {
 		
 		this.function = function;			
-		return this.function;
-		
+		return this.function;		
 	}
 	
-
 	@Override
 	public boolean grantCode(String code) {	
 		
 		loadCodes();
 				
 		if (ticketCodes.contains(code)) {
+			
 			this.code = code;
+			
 			ticketCodes.remove(code);
 			updateCodeList();
 
@@ -98,13 +156,13 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		return false;
 	}
 	
-
 	@Override
 	public boolean fromStation(String from) {
 		
 		loadStations();
 		
 		if (stationMap.containsKey(from)) {
+			
 			fromStation = from;
 			return true;
 		}
@@ -112,11 +170,12 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		return false;
 	}
 	
-
 	@Override
 	public boolean toStation(String to) {
 
+		// The destination cannot be the same as the starting station.
 		if (stationMap.containsKey(to) && !to.equals(fromStation)) {
+			
 			toStation = to;
 			return true;
 		}
@@ -124,18 +183,20 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		return false;
 	}
 	
-
 	@Override
 	public boolean leavingTime(String time) {
 		
 		List<String> timeList = new ArrayList<>();
 
+		// The trains leave in every two hours between 7 and 21
 		for (int i = 7; i <= 21; i += 2) {
+			
 			StringBuilder sb = new StringBuilder();
-			timeList.add(sb.append(i).append(":00").toString());
+			timeList.add(sb.append(i).append("-00").toString());
 		}
 
 		if (timeList.contains(time)) {
+			
 			leavingTime = time;
 			return true;
 		}
@@ -143,18 +204,15 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		return false;
 	}
 	
-
 	@Override
 	public PaymentType paymentType(PaymentType paymentType) {
 
 		price = computePrice();
 		
 		this.paymentType = paymentType;
-		return this.paymentType;
-		
+		return this.paymentType;		
 	}
 	
-
 	@Override
 	public boolean payWithCash(int amount) {
 
@@ -164,16 +222,14 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 			return true;
 		} else {
 			return changeHandle(price, amount);
-		}
-		
+		}		
 	}
 	
 
 	@Override
 	public boolean payWithCreditCard(String cardNumber) {
 		
-		return creditcardPayment.pay(cardNumber);
-		
+		return creditCardPayment.pay(cardNumber);		
 	}
 
 	@Override
@@ -185,7 +241,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		BufferedWriter bw = null;
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("src/main/resources/ticket").append(ticketId).append(".txt");
+		sb.append(ticketFolder).append(ticketId).append(".txt");
 
 		try {
 			fw = new FileWriter(sb.toString());
@@ -225,18 +281,28 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 			}
 		}
 		
-		return alright;
+		return alright;		
+	}
+	
+	@Override
+	public void exit() {
 		
+		initialize();
 	}
 	
 	
+	/**
+	 * Loads the codes from the codeFile into codeList.
+	 */
 	private void loadCodes() {
+		
+		ticketCodes.clear();
 		
 		BufferedReader br = null;
 		FileReader fr = null;
 		
 		try {
-			fr = new FileReader(CODE_FILE);
+			fr = new FileReader(codeFile);
 			br = new BufferedReader(fr);
 			
 			String currentLine;
@@ -256,18 +322,19 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
-		}
-		
+		}		
 	}
 	
-	
+	/**
+	 * Writes the codes from codeList to codeFile.
+	 */
 	private void updateCodeList() {
 		
 		FileWriter fw = null;
 		BufferedWriter bw = null;
 		
 		try {
-			fw = new FileWriter(CODE_FILE);
+			fw = new FileWriter(codeFile);
 			bw = new BufferedWriter(fw);
 
 			for (String ticketCode : ticketCodes) {
@@ -285,23 +352,27 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
-		}
-		
+		}		
 	}
 	
+	
+	/**
+	 * Loads the station informations from the stationFile into stationMap.
+	 */
 	private void loadStations() {
 		
 		BufferedReader br = null;
 		FileReader fr = null;
 		
 		try {
-			fr = new FileReader(STATION_FILE);
+			fr = new FileReader(stationFile);
 			br = new BufferedReader(fr);
 			
 			String currentLine;
 			
 			while ((currentLine = br.readLine()) != null) {
 				
+				// City;Xcoordinate;Ycoordinate
 				String[] lineArray = currentLine.split(";");
 				Integer[] positions = { Integer.parseInt(lineArray[1]), Integer.parseInt(lineArray[2]) };
 				stationMap.put(lineArray[0], positions);
@@ -319,11 +390,14 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
-		}
-		
+		}		
 	}
 	
 	
+	/**
+	 * Computes the price by the station coordinates and the price per kilometer.
+	 * @return the price rounded to zero or five
+	 */
 	private int computePrice() {
 
 		Integer[] fromPosition = stationMap.get(fromStation);
@@ -339,11 +413,15 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 
 		price = distance * PRICE_PER_KM;
 
-		return roundToZeroOrFive(price);
-		
+		return roundToZeroOrFive(price);		
 	}
 	
-	
+	/**
+	 * Rounds the given value to five or zero.
+	 * Eg: 66 -> 65, 108 -> 110
+	 * @param value to be rounded
+	 * @return value rounded to zero or five
+	 */
 	private int roundToZeroOrFive(int value) {
 		
 		int newValue;
@@ -355,11 +433,15 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 			newValue = value + 5 - modulo;
 		}
 
-		return newValue;
-		
+		return newValue;		
 	}
 	
-	
+	/**
+	 * Computes whether the automata can give back the change.
+	 * @param price is price of the ticket
+	 * @param amountOfCash is the amount the customer gave in
+	 * @return true if the machine can give back change, false if it cannot
+	 */
 	private boolean changeHandle(int price, int amountOfCash) {
 		
 		int remainingAmount = amountOfCash - price;
@@ -399,7 +481,9 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		}
 	}
 	
-	
+	/**
+	 * Initializes the automata with given amount of cash.
+	 */
 	private void initializeChangeCashMap() {
 		
 		changeCash.clear();
@@ -416,6 +500,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		changeCash.put(5000, 10);
 		changeCash.put(10000, 5);
 
+		denominationList.clear();
+		
 		denominationList.add(10000);
 		denominationList.add(5000);
 		denominationList.add(2000);
@@ -427,17 +513,6 @@ public class TrainTicketAutomata implements ITrainticketAutomata, ITestInterface
 		denominationList.add(20);
 		denominationList.add(10);
 		denominationList.add(5);
-
 	}
 
-	@Override
-	public void setToDefault() {
-		initialize();
-	}
-
-	@Override
-	public void setChangeCashInAutomata(Map<Integer, Integer> changeCashMap) {
-		this.changeCash = changeCashMap;
-	}
-	
 }
