@@ -10,12 +10,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import trainticket.creditcard.CreditCardPayment;
 import trainticket.creditcard.ICreditCardPayment;
 import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
 public class TrainTicketAutomata implements ITrainticketAutomata {
+	
+	// Logger, for logging the happenings
+	Logger logger = LoggerFactory.getLogger(TrainTicketAutomata.class); 
 	
 	// Price of the ticket per kilometer.
 	private static final int PRICE_PER_KM = 10;
@@ -59,7 +65,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	 * Constructor without parameters, sets default values, and initializes everything.
 	 */
 	public TrainTicketAutomata() {
-		
+				
 		codeFile = "src/main/resources/codes.txt";
 		stationFile = "src/main/resources/stations.txt";
 		ticketFolder = "src/main/resources/ticket";
@@ -68,6 +74,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		
 		createListsAndMaps();		
 		initializeChangeCashMap();
+		
+		logger.debug("Trainticket automata created");
 	}
 	
 	/**
@@ -79,6 +87,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		stationMap = new HashMap<>();
 		changeCash = new HashMap<>();
 		denominationList = new ArrayList<>();
+		
+		logger.debug("Lists and maps created");
 	}
 	
 	/**
@@ -100,6 +110,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		leavingTime = null;
 		
 		initializeChangeCashMap();
+		
+		logger.debug("Initialized");
 	}
 	
 	
@@ -110,6 +122,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	public void setCreditcardPayment(ICreditCardPayment creditCardPayment) {
 		
 		this.creditCardPayment = creditCardPayment;
+		
+		logger.debug("Credit card payment: " + creditCardPayment.getClass());
 	}
 	
 	/**
@@ -119,6 +133,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	public void setCodeFile(String codeFile) {
 		
 		this.codeFile = codeFile;
+		
+		logger.debug("Code file: " + codeFile);
 	}
 	
 	/**
@@ -128,6 +144,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	public void setTicketFolder(String ticketFolder) {
 		
 		this.ticketFolder = ticketFolder;
+		
+		logger.debug("Ticket folder: " + ticketFolder);
 	}
 		
 	
@@ -135,6 +153,9 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	public Function chooseFunction(Function function) {
 		
 		this.function = function;			
+		
+		logger.info("Chosen function: " + this.function.toString());
+		
 		return this.function;		
 	}
 	
@@ -149,9 +170,13 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 			
 			ticketCodes.remove(code);
 			updateCodeList();
+			
+			logger.info("Code: " + code + " was valid");
 
 			return true;
 		}		
+		
+		logger.info("Code: " + code + " was not valid");
 		
 		return false;
 	}
@@ -164,8 +189,13 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		if (stationMap.containsKey(from)) {
 			
 			fromStation = from;
+			
+			logger.info("From: " + from + " was valid");
+			
 			return true;
 		}
+		
+		logger.info("From: " + from + " was not valid");
 		
 		return false;
 	}
@@ -177,9 +207,14 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		if (stationMap.containsKey(to) && !to.equals(fromStation)) {
 			
 			toStation = to;
+			
+			logger.info("To: " + to + " was valid");
+			
 			return true;
 		}
 
+		logger.info("To: " + to + " was not valid");
+		
 		return false;
 	}
 	
@@ -198,9 +233,14 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		if (timeList.contains(time)) {
 			
 			leavingTime = time;
+			
+			logger.info("Time: " + time + " was valid");
+			
 			return true;
 		}
 
+		logger.info("Time: " + time + " was not valid");
+		
 		return false;
 	}
 	
@@ -210,6 +250,9 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		price = computePrice();
 		
 		this.paymentType = paymentType;
+		
+		logger.info("Payment: " + this.paymentType.getClass());
+		
 		return this.paymentType;		
 	}
 	
@@ -217,8 +260,10 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	public boolean payWithCash(int amount) {
 
 		if (amount < price) {
+			logger.info("Cash: less than price");
 			return false;
 		} else if (amount == price) {
+			logger.info("Cash: success");
 			return true;
 		} else {
 			return changeHandle(price, amount);
@@ -229,7 +274,11 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	@Override
 	public boolean payWithCreditCard(String cardNumber) {
 		
-		return creditCardPayment.pay(cardNumber);		
+		boolean success = creditCardPayment.pay(cardNumber); 
+		
+		logger.info("Credit card successful: " + success);
+		
+		return success;
 	}
 
 	@Override
@@ -267,7 +316,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 			bw.write(fileContent.toString());
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 			alright = false;
 		} finally {
 			try {
@@ -276,16 +325,20 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 				if (fw != null)
 					fw.close();
 			} catch (IOException ex) {
-				ex.printStackTrace();
+				logger.error(ex.getMessage());
 				alright = false;
 			}
 		}
+		
+		logger.info("Print successful: " + alright);
 		
 		return alright;		
 	}
 	
 	@Override
 	public void exit() {
+		
+		logger.info("Exit");
 		
 		initialize();
 	}
@@ -295,6 +348,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	 * Loads the codes from the codeFile into codeList.
 	 */
 	private void loadCodes() {
+		
+		logger.debug("Loading codes from file");
 		
 		ticketCodes.clear();
 		
@@ -312,7 +367,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 			}
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally {
 			try {
 				if (br != null)
@@ -320,7 +375,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 				if (fr != null)
 					fr.close();
 			} catch (IOException ex) {
-				ex.printStackTrace();
+				logger.error(ex.getMessage());
 			}
 		}		
 	}
@@ -329,6 +384,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	 * Writes the codes from codeList to codeFile.
 	 */
 	private void updateCodeList() {
+		
+		logger.debug("Updating codes");
 		
 		FileWriter fw = null;
 		BufferedWriter bw = null;
@@ -342,7 +399,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 			}
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally {
 			try {
 				if (bw != null)
@@ -350,7 +407,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 				if (fw != null)
 					fw.close();
 			} catch (IOException ex) {
-				ex.printStackTrace();
+				logger.error(ex.getMessage());
 			}
 		}		
 	}
@@ -360,6 +417,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	 * Loads the station informations from the stationFile into stationMap.
 	 */
 	private void loadStations() {
+		
+		logger.debug("Loading stations");
 		
 		BufferedReader br = null;
 		FileReader fr = null;
@@ -380,7 +439,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 			}
 			
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally {
 			try {
 				if (br != null)
@@ -388,7 +447,7 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 				if (fr != null)
 					fr.close();
 			} catch (IOException ex) {
-				ex.printStackTrace();
+				logger.error(ex.getMessage());
 			}
 		}		
 	}
@@ -399,6 +458,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	 * @return the price rounded to zero or five
 	 */
 	private int computePrice() {
+		
+		logger.debug("Computing price");
 
 		Integer[] fromPosition = stationMap.get(fromStation);
 		int x1 = fromPosition[0];
@@ -423,6 +484,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 	 * @return value rounded to zero or five
 	 */
 	private int roundToZeroOrFive(int value) {
+		
+		logger.debug("Roudning to 5 or 0");
 		
 		int newValue;
 		int modulo = value % 5;
@@ -468,6 +531,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 
 		if (remainingAmount != 0) {
 			
+			logger.info("Cash: not enough change");
+			
 			return false;
 			
 		} else {
@@ -476,6 +541,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 				int difference = entry.getValue();
 				changeCash.put(entry.getKey(), oldValue - difference);
 			}
+			
+			logger.info("Cash: success");
 			
 			return true;
 		}
@@ -513,6 +580,8 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		denominationList.add(20);
 		denominationList.add(10);
 		denominationList.add(5);
+		
+		logger.debug("Change cash map initialized");
 	}
 
 }

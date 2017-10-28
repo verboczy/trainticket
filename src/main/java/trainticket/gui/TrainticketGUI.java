@@ -1,6 +1,9 @@
 package trainticket.gui;
 	
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -26,6 +29,8 @@ import trainticket.enums.PaymentType;
 
 
 public class TrainticketGUI extends Application {
+	
+	Logger logger = LoggerFactory.getLogger(TrainticketGUI.class);
 	
 	private boolean isCodeGiven = false;
 	private boolean isFromGiven = false;
@@ -86,6 +91,8 @@ public class TrainticketGUI extends Application {
 		id = 0;
 
 		trainticketAutomata = new TrainTicketAutomata();
+		
+		logger.debug("Trainticket GUI created");
 	}
 	
 	/**
@@ -95,6 +102,8 @@ public class TrainticketGUI extends Application {
 	public void setITrainTicketAutomata(ITrainticketAutomata trainticketAutomata) {
 		
 		this.trainticketAutomata = trainticketAutomata;
+		
+		logger.debug("Trainticket automata: " + this.trainticketAutomata.getClass());
 	}
 	
 	/**
@@ -109,6 +118,7 @@ public class TrainticketGUI extends Application {
 		rbCash.setDisable(true);		
 		rbCreditCard.setDisable(true);
 		
+		logger.debug("Radio buttons initialized");
 	}
 	
 	
@@ -144,11 +154,15 @@ public class TrainticketGUI extends Application {
 							trainticketAutomata.chooseFunction(Function.INTERNET_TICKET);
 							isInternetTicket = true;
 							setInternetDisabled = false;
+							
+							logger.info("INTERNET_TICKET");
 						}
 						else if ("rbPurchase".equals(userData)) {
 							trainticketAutomata.chooseFunction(Function.PURCHASE_TICKET);
 							isInternetTicket = false;
 							setInternetDisabled = false;
+							
+							logger.info("PURCHASE_TICKET");
 						}						
 						refresh();
 					}
@@ -180,11 +194,15 @@ public class TrainticketGUI extends Application {
 							trainticketAutomata.paymentType(PaymentType.CASH);
 							isCashPayment = true;
 							setPaymentDisabled = false;
+							
+							logger.info("CASH");
 						}
 						else if ("rbCreditcard".equals(userData)) {
 							trainticketAutomata.paymentType(PaymentType.CREDITCARD);
 							isCashPayment = false;
 							setPaymentDisabled = false;
+							
+							logger.info("CREDITCARD");
 						}						
 						refresh();
 					}
@@ -208,6 +226,8 @@ public class TrainticketGUI extends Application {
 			
 			@Override
 			public void handle(ActionEvent event) {
+				
+				logger.debug("Code button clicked");
 				
 				String codeFromTextField = tfGrantCode.getText();
 				if (!"".equals(codeFromTextField)) { 
@@ -238,6 +258,8 @@ public class TrainticketGUI extends Application {
 			
 			@Override
 			public void handle(ActionEvent event) {
+				
+				logger.debug("From button clicked");
 				
 				String fromTextField = tfFromStation.getText();
 				if (!"".equals(fromTextField)) {
@@ -270,6 +292,8 @@ public class TrainticketGUI extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				
+				logger.debug("To button clicked");
+				
 				String toTextField = tfToStation.getText();
 				if (!"".equals(toTextField)) {
 					isToGiven = trainticketAutomata.toStation(toTextField);
@@ -300,6 +324,8 @@ public class TrainticketGUI extends Application {
 			
 			@Override
 			public void handle(ActionEvent event) {
+				
+				logger.debug("Time button clicked");
 				
 				String timeTextField = tfTime.getText();
 				if (!"".equals(timeTextField)) {
@@ -332,6 +358,8 @@ public class TrainticketGUI extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				
+				logger.debug("Cash button clicked");
+				
 				String cashFromTextField = tfCash.getText();
 				if (!"".equals(cashFromTextField)) {
 					int amount = Integer.parseInt(cashFromTextField);
@@ -361,6 +389,8 @@ public class TrainticketGUI extends Application {
 			@Override
 			public void handle(ActionEvent event) {
 				
+				logger.debug("CreditCard button clicked");
+				
 				String creditCardFromTextField = tfCreditCard.getText();
 				if (!"".equals(creditCardFromTextField)) {
 					isCreditCardGiven = trainticketAutomata.payWithCreditCard(creditCardFromTextField);
@@ -389,6 +419,9 @@ public class TrainticketGUI extends Application {
 			
 			@Override
 			public void handle(ActionEvent event) {
+				
+				logger.debug("Print button clicked");
+				
 				boolean printInternetTicket = isInternetTicket && isCodeGiven;
 				boolean printPurchaseTicket = !isInternetTicket && isFromGiven && isToGiven && isTimeGiven 
 						&& ((isCashPayment && isCashGiven) || (!isCashPayment && isCreditCardGiven));
@@ -420,7 +453,11 @@ public class TrainticketGUI extends Application {
 			
 			@Override
 			public void handle(ActionEvent event) {
+				
+				logger.debug("Exit button clicked");
 			
+				trainticketAutomata.exit();
+				
 				clear();
 			}
 			
@@ -461,6 +498,8 @@ public class TrainticketGUI extends Application {
 		addExitButton(grid);
 		
 		refresh();
+		
+		logger.debug("Elements added to pane");
 	}
 	
 	/**
@@ -470,6 +509,8 @@ public class TrainticketGUI extends Application {
 		
 		rbCash.setDisable(isInternetTicket || !isFromGiven || !isToGiven || !isTimeGiven);
 		rbCreditCard.setDisable(isInternetTicket || !isFromGiven || !isToGiven || !isTimeGiven);
+		
+		logger.debug("Payment radio buttons refreshed");
 	}
 	
 	/**
@@ -504,6 +545,7 @@ public class TrainticketGUI extends Application {
 		// Refresh textfields and buttons
 		refresh();
 
+		logger.debug("Clear");
 	}
 	
 	/**
@@ -516,6 +558,8 @@ public class TrainticketGUI extends Application {
 				&& ((isCashPayment && isCashGiven) || (!isCashPayment && isCreditCardGiven));
 		
 		bPrintTicket.setDisable(!printInternetTicket && !printPurchaseTicket);
+		
+		logger.debug("Print refreshed");
 	}
 	
 	/**
@@ -541,6 +585,7 @@ public class TrainticketGUI extends Application {
 		bCreditCard.setDisable(isInternetTicket || isCashPayment || setPaymentDisabled);
 		tfCreditCard.setDisable(isInternetTicket || isCashPayment || setPaymentDisabled);
 		
+		logger.debug("Refresh done");
 	}
 	
 	/**
@@ -553,11 +598,16 @@ public class TrainticketGUI extends Application {
 		alert.setTitle("Error Dialog");
 		alert.setContentText(message);
 
+		logger.debug("Alert: " + message);
+		
 		alert.showAndWait();
 	}
 	
 	@Override
 	public void start(Stage primaryStage) {
+		
+		logger.debug("Start GUI");
+		
 		try {
 			primaryStage.setTitle("Train ticket application");			
 			GridPane grid = new GridPane();
@@ -573,7 +623,7 @@ public class TrainticketGUI extends Application {
 			primaryStage.setScene(scene);
 			primaryStage.show();
 		} catch(Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 	
@@ -582,7 +632,7 @@ public class TrainticketGUI extends Application {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		
+				
 		// Calls the start method
 		launch(args);
 	}
