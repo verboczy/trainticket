@@ -30,7 +30,7 @@ import trainticket.enums.PaymentType;
 
 public class TrainticketGUI extends Application {
 	
-	Logger logger = LoggerFactory.getLogger(TrainticketGUI.class);
+	private Logger logger = LoggerFactory.getLogger(TrainticketGUI.class);
 	
 	private boolean isCodeGiven = false;
 	private boolean isFromGiven = false;

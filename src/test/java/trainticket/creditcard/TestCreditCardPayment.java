@@ -9,9 +9,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class TestCreditCardPayment {
+	
+	private Logger logger = LoggerFactory.getLogger(TestCreditCardPayment.class);
 	
 	private String name;
 	private String cardNumber;
@@ -44,6 +48,8 @@ public class TestCreditCardPayment {
 	public void testCreditCardNumberValidity() {
 		
 		boolean actual = sut.pay(cardNumber);
+		
+		logger.info(name + " expected to be " + expected + ", actually: " + actual);
 		
 		assertEquals(expected, actual);
 	}

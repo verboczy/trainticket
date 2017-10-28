@@ -21,7 +21,7 @@ import trainticket.enums.PaymentType;
 public class TrainTicketAutomata implements ITrainticketAutomata {
 	
 	// Logger, for logging the happenings
-	Logger logger = LoggerFactory.getLogger(TrainTicketAutomata.class); 
+	private Logger logger = LoggerFactory.getLogger(TrainTicketAutomata.class); 
 	
 	// Price of the ticket per kilometer.
 	private static final int PRICE_PER_KM = 10;
