@@ -16,7 +16,7 @@ import org.sikuli.script.Screen;
 
 import trainticket.automata.TrainticketTester;
 
-@GraphWalker(value = "random(edge_coverage(100))")
+//@GraphWalker(value = "random(edge_coverage(100))")
 public class TrainticketGuiTest extends ExecutionContext implements TrainticketTester {
 	
 	private Screen screen = new Screen();
