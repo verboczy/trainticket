@@ -370,6 +370,7 @@ public class TrainticketGUI extends Application {
 				}
 				
 				if (!isCashGiven) {
+					setPaymentTypesUnselected();
 					tfCash.clear();
 					alertMessage("Payment was not successful. Please try again!");
 				}
@@ -400,6 +401,7 @@ public class TrainticketGUI extends Application {
 				}
 				
 				if (!isCreditCardGiven) {
+					setPaymentTypesUnselected();
 					tfCreditCard.clear();
 					alertMessage("Payment was not successful. Please try again!");
 				}
@@ -503,6 +505,14 @@ public class TrainticketGUI extends Application {
 		refresh();
 		
 		logger.debug("Elements added to pane");
+	}
+	
+	/**
+	 * Sets the payment radio buttons to unselected.
+	 */
+	private void setPaymentTypesUnselected() {
+		rbCash.setSelected(false);
+		rbCreditCard.setSelected(false);
 	}
 	
 	/**

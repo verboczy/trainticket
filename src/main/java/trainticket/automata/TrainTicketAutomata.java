@@ -2,6 +2,7 @@ package trainticket.automata;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -317,8 +318,11 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		FileWriter fw = null;
 		BufferedWriter bw = null;
 
+		// Make sure the ticket folder exists
+		folderCheck();
+		
 		StringBuilder sb = new StringBuilder();
-		sb.append(ticketFolder).append(ticketId).append(".txt");
+		sb.append(ticketFolder).append("/ticket").append(ticketId).append(".txt");
 
 		try {
 			fw = new FileWriter(sb.toString());
@@ -369,6 +373,19 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		logger.info("Exit");
 		
 		initialize();
+	}
+	
+	
+	/**
+	 * If the ticket folder does not exist create it.
+	 */
+	private void folderCheck() {
+		
+		File dir = new File(ticketFolder);
+		
+		if (!dir.exists()) {
+			dir.mkdir();
+		}
 	}
 	
 	
