@@ -2,7 +2,7 @@ package trainticket.creditcard;
 
 import java.util.regex.Pattern;
 
-public class CreditcardPayment implements ICreditcardPayment {
+public class CreditCardPayment implements ICreditCardPayment {
 
 	@Override
 	public boolean pay(String cardNumber) {
