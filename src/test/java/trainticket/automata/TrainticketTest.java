@@ -124,6 +124,13 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 				
 		return alright;
 	}
+	
+	@Override
+	public void v_exit() {
+		
+		logger.info("v_exit()");
+			
+	}
 
 	@Override
 	public void v_chooseFunction() {
@@ -182,6 +189,14 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	}
 	
 	@Override
+	public void e_internetExit() {
+		
+		logger.info("e_internetExit()");
+		
+		sut.exit();
+	}
+	
+	@Override
 	public void e_validCode() {
 		
 		logger.info("e_validCode()");
@@ -214,6 +229,14 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	}
 
 	@Override
+	public void e_fromExit() {
+		
+		logger.info("e_fromExit()");
+		
+		sut.exit();
+	}
+	
+	@Override
 	public void e_fromInvalid() {
 		
 		logger.info("e_fromInvalid()");
@@ -238,6 +261,14 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	}
 	
 	@Override
+	public void e_toExit() {
+		
+		logger.info("e_toExit()");
+		
+		sut.exit();
+	}
+	
+	@Override
 	public void e_toInvalid() {
 		
 		logger.info("e_toInvalid()");
@@ -259,6 +290,14 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 		logger.info("v_when()");
 		
 		Assert.assertTrue(to);
+	}
+	
+	@Override
+	public void e_whenExit() {
+		
+		logger.info("e_whenExit()");
+		
+		sut.exit();
 	}
 
 	@Override
@@ -285,6 +324,14 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 		Assert.assertTrue(time);
 	}
 
+	@Override
+	public void e_paymentExit() {
+		
+		logger.info("e_paymentExit()");
+		
+		sut.exit();
+	}
+	
 	@Override
 	public void e_cash() {
 		
@@ -389,6 +436,14 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	public void e_returnToWaiting() {
 		
 		logger.info("e_returnToWaiting()");
+		
+		sut.exit();
+	}
+
+	@Override
+	public void e_exitToWaiting() {
+		
+		logger.info("e_exitToWaiting()");
 		
 		sut.exit();
 	}

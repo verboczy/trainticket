@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
  * @author verboczy
  *
  */
-//@GraphWalker(value = "random(vertex_coverage(100))")
+@GraphWalker(value = "random(vertex_coverage(100))")
 public class TrainticketVertexCoverageTest extends TrainticketTest {
 	
 	public TrainticketVertexCoverageTest() {

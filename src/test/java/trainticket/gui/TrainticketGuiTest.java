@@ -35,6 +35,7 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 	private Pattern imagePrint = new Pattern("src/test/resources/images/print.PNG");
 	private Pattern imageTicketPurchase = new Pattern("src/test/resources/images/ticketpurchase.PNG");
 	private Pattern imageAlert = new Pattern("src/test/resources/images/alertok.PNG");
+	private Pattern imageExit = new Pattern("src/test/resources/images/exit.PNG");
 	
 	private Pattern codeMatch = new Pattern("src/test/resources/images/codematch.PNG");
 	private Pattern purchaseMatch = new Pattern("src/test/resources/images/purchasematch.PNG");
@@ -89,6 +90,7 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 		imagePrint.similar(similarity);
 		imageTicketPurchase.similar(similarity);
 		imageAlert.similar(similarity);
+		imageExit.similar(0.9f);
 		
 		codeMatch.similar(similarity);
 		purchaseMatch.similar(similarity);
@@ -149,6 +151,13 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 		}
 				
 		return alright;
+	}
+	
+	@Override
+	public void v_exit() {
+		
+		logger.info("v_exit()");
+		
 	}
 
 	@Override
@@ -227,6 +236,20 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 	}
 	
 	@Override
+	public void e_internetExit() {
+		
+		logger.info("e_internetExit()");
+		
+		try {
+			screen.click(imageExit);
+		}
+		catch (FindFailed e) {
+			logger.error(e.getMessage());
+			handleFindFailed();
+		}		
+	}
+	
+	@Override
 	public void e_validCode() {
 		
 		logger.info("e_validCode()");
@@ -278,6 +301,20 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 	}
 
 	@Override
+	public void e_fromExit() {
+		
+		logger.info("e_fromExit()");
+		
+		try {
+			screen.click(imageExit);
+		}
+		catch (FindFailed e) {
+			logger.error(e.getMessage());
+			handleFindFailed();
+		}	
+	}
+	
+	@Override
 	public void e_fromInvalid() {
 		
 		logger.info("e_fromInvalid()");
@@ -323,6 +360,20 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 			handleFindFailed();
 		}
 		
+	}
+	
+	@Override
+	public void e_toExit() {
+		
+		logger.info("e_toExit()");
+		
+		try {
+			screen.click(imageExit);
+		}
+		catch (FindFailed e) {
+			logger.error(e.getMessage());
+			handleFindFailed();
+		}	
 	}
 	
 	@Override
@@ -372,6 +423,20 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 		}
 		
 	}
+	
+	@Override
+	public void e_whenExit() {
+		
+		logger.info("e_whenExit()");
+		
+		try {
+			screen.click(imageExit);
+		}
+		catch (FindFailed e) {
+			logger.error(e.getMessage());
+			handleFindFailed();
+		}	
+	}
 
 	@Override
 	public void e_whenInvalid() {
@@ -412,6 +477,20 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 		logger.info("v_choosePaymentType()");
 	}
 
+	@Override
+	public void e_paymentExit() {
+		
+		logger.info("e_paymentExit()");
+		
+		try {
+			screen.click(imageExit);
+		}
+		catch (FindFailed e) {
+			logger.error(e.getMessage());
+			handleFindFailed();
+		}	
+	}
+	
 	@Override
 	public void e_cash() {
 		
@@ -601,6 +680,20 @@ public class TrainticketGuiTest extends ExecutionContext implements TrainticketT
 			handleFindFailed();
 		}
 		
+	}
+	
+	@Override
+	public void e_exitToWaiting() {
+		
+		logger.info("e_exitToWaiting()");
+		
+		try {
+			screen.click(imageExit);
+		}
+		catch (FindFailed e) {
+			logger.error(e.getMessage());
+			handleFindFailed();
+		}	
 	}
 	
 }

@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  * @author verboczy
  *
  */
-@GraphWalker(value = "random(edge_coverage(100))")
+//@GraphWalker(value = "random(edge_coverage(100))")
 public class TrainticketGuiEdgeCoverageTest extends TrainticketGuiTest {
 	
 	
