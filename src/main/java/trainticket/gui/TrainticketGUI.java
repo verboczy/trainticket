@@ -96,15 +96,18 @@ public class TrainticketGUI extends Application {
 	}
 	
 	/**
-	 * Method for setting the trainticket automata. 
+	 * Constructor for setting the trainticket automata.
 	 * @param trainticketAutomata
 	 */
-	public void setITrainTicketAutomata(ITrainticketAutomata trainticketAutomata) {
+	public TrainticketGUI(ITrainticketAutomata trainticketAutomata) {
+		
+		id = 0;
 		
 		this.trainticketAutomata = trainticketAutomata;
 		
-		logger.debug("Trainticket automata: " + this.trainticketAutomata.getClass());
+		logger.debug("Trainticket GUI created (c1)");
 	}
+	
 	
 	/**
 	 * Initially no radio button is selected or enabled.
