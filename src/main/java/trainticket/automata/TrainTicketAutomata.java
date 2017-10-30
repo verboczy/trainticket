@@ -2,6 +2,7 @@ package trainticket.automata;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -75,8 +76,70 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		createListsAndMaps();		
 		initializeChangeCashMap();
 		
-		logger.debug("Trainticket automata created");
+		logger.debug("Trainticket automata created c(0)");
 	}
+	
+	/**
+	 * Constructor for creating TrainTicketAutomata with the given credit card payment.
+	 * @param creditCardPayment
+	 */
+	public TrainTicketAutomata(ICreditCardPayment creditCardPayment) {
+		
+		this.creditCardPayment = creditCardPayment;
+		
+		codeFile = "src/main/resources/codes.txt";
+		stationFile = "src/main/resources/stations.txt";
+		ticketFolder = "src/main/resources/ticket";
+		
+		createListsAndMaps();		
+		initializeChangeCashMap();
+		
+		logger.debug("Trainticket automata created c(1)");
+	}
+	
+	/**
+	 * Constructor for creating TrainTicketAutomata with the given code file, station file and ticket folder.
+	 * @param codeFile
+	 * @param stationFile
+	 * @param ticketFolder
+	 */
+	public TrainTicketAutomata(String codeFile, String stationFile, String ticketFolder) {
+		
+		creditCardPayment = new CreditCardPayment();
+		
+		this.codeFile = codeFile;
+		this.stationFile = stationFile;
+		this.ticketFolder = ticketFolder;
+		
+		createListsAndMaps();		
+		initializeChangeCashMap();
+		
+		logger.debug("Trainticket automata created (c3)");
+	}
+	
+	/**
+	 * Constructor for creating TrainTicketAutomata with the given credit card payment, 
+	 * code file, station file and ticket folder.
+	 * @param creditCardPayment
+	 * @param codeFile
+	 * @param stationFile
+	 * @param ticketFolder
+	 */
+	public TrainTicketAutomata(ICreditCardPayment creditCardPayment, String codeFile, String stationFile, String ticketFolder) {
+		
+		this.creditCardPayment = creditCardPayment;
+		
+		this.codeFile = codeFile;
+		this.stationFile = stationFile;
+		this.ticketFolder = ticketFolder;
+		
+		createListsAndMaps();		
+		initializeChangeCashMap();
+		
+		logger.debug("Trainticket automata created (c4)");
+	}
+	
+
 	
 	/**
 	 * Initializes the lists and maps.
@@ -112,40 +175,6 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		initializeChangeCashMap();
 		
 		logger.debug("Initialized");
-	}
-	
-	
-	/**
-	 * Method for setting the payment type.
-	 * @param creditCardPayment
-	 */
-	public void setCreditcardPayment(ICreditCardPayment creditCardPayment) {
-		
-		this.creditCardPayment = creditCardPayment;
-		
-		logger.debug("Credit card payment: " + creditCardPayment.getClass());
-	}
-	
-	/**
-	 * Method for setting the code file.
-	 * @param codeFile contains the internet ticket codes
-	 */
-	public void setCodeFile(String codeFile) {
-		
-		this.codeFile = codeFile;
-		
-		logger.debug("Code file: " + codeFile);
-	}
-	
-	/**
-	 * Method for setting the folder of the "printed" tickets.
-	 * @param ticketFolder
-	 */
-	public void setTicketFolder(String ticketFolder) {
-		
-		this.ticketFolder = ticketFolder;
-		
-		logger.debug("Ticket folder: " + ticketFolder);
 	}
 		
 	
@@ -289,8 +318,11 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		FileWriter fw = null;
 		BufferedWriter bw = null;
 
+		// Make sure the ticket folder exists
+		folderCheck();
+		
 		StringBuilder sb = new StringBuilder();
-		sb.append(ticketFolder).append(ticketId).append(".txt");
+		sb.append(ticketFolder).append("/ticket").append(ticketId).append(".txt");
 
 		try {
 			fw = new FileWriter(sb.toString());
@@ -341,6 +373,19 @@ public class TrainTicketAutomata implements ITrainticketAutomata {
 		logger.info("Exit");
 		
 		initialize();
+	}
+	
+	
+	/**
+	 * If the ticket folder does not exist create it.
+	 */
+	private void folderCheck() {
+		
+		File dir = new File(ticketFolder);
+		
+		if (!dir.exists()) {
+			dir.mkdir();
+		}
 	}
 	
 	

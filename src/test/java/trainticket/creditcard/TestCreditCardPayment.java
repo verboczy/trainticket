@@ -12,6 +12,12 @@ import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+/**
+ * Test class used for unit testing the credit card's payment functionality.
+ * @author verboczy
+ *
+ */
 @RunWith(Parameterized.class)
 public class TestCreditCardPayment {
 	

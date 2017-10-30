@@ -2,13 +2,13 @@ package trainticket.automata;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.graphwalker.core.machine.ExecutionContext;
-import org.graphwalker.java.annotation.GraphWalker;
 import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +17,18 @@ import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
 
-@GraphWalker(value = "random(edge_coverage(100))")
+/**
+ * Class for testing the application using GraphWalker.
+ * @author verboczy
+ *
+ */
 public class TrainticketTest extends ExecutionContext implements TrainticketTester {
 	
 	Logger logger = LoggerFactory.getLogger(TrainticketTest.class);
 	
 	private static final String source = "src/test/resources/codes.txt";
 	private static final String target = "src/main/resources/codes.txt";
+	private static final String ticketFolder = "src/test/resources/ticket";
 	
 	ITrainticketAutomata sut; 
 	private int id = 0;
@@ -44,6 +49,23 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 	
 	private Integer vc = 0;
 	
+
+	/**
+	 * Constructor without parameters.
+	 */
+	public TrainticketTest() {
+		// default constructor
+	}
+	
+	/**
+	 * Constructor for setting the Logger.
+	 * @param logger
+	 */
+	public TrainticketTest(Logger logger) {
+		
+		this.logger = logger;
+	}
+	
 	@Override
 	public void e_Init() {
 		
@@ -59,7 +81,8 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 		
 		setUpSuccess = setUp();
 
-		sut = new TrainTicketAutomata();
+		sut = new TrainTicketAutomata(target, "src/main/resources/stations.txt", ticketFolder);
+		
 	}
 	
 	private boolean setUp() {
@@ -70,17 +93,35 @@ public class TrainticketTest extends ExecutionContext implements TrainticketTest
 		
 		Path codePathSource = Paths.get(source);
 		Path codePathTarget = Paths.get(target);
-				
+		
+		alright = deleteTickets();
+		
 		try {
-			Files.copy(codePathSource, codePathTarget, REPLACE_EXISTING);
-			
-			// TODO delete ticket*.txt files
+			Files.copy(codePathSource, codePathTarget, REPLACE_EXISTING);			
 			
 		} catch (IOException e) {
 			alright = false;
 			logger.error(e.getMessage());
 		}
 		
+		return alright;
+	}
+	
+	private boolean deleteTickets() {
+		
+		logger.debug("Entering deleteTickets()");
+		
+		boolean alright = true;
+		
+		File dir = new File(ticketFolder);
+		if (dir.exists()) {
+		
+			for (File file : dir.listFiles()) {
+				alright = file.delete();
+			}
+			
+		}
+				
 		return alright;
 	}
 
