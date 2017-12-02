@@ -46,7 +46,6 @@ her credit card's number. This number is checked,
 then the transaction takes place. If everything 
 was successful, then it prints the ticket and 
 writes "Thank you for choosing the railways!" to 
-the output. 
+the output, and returns to the main interface.
 If something went wrong the user has to choose 
 the payment type again.
-
