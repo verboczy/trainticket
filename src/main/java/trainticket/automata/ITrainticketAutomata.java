@@ -1,5 +1,6 @@
 package trainticket.automata;
 
+import trainticket.enums.AutomataState;
 import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
@@ -67,6 +68,12 @@ public interface ITrainticketAutomata {
 	 * @return true if the ticket was printed successfully, false otherwise
 	 */
 	public boolean printTicket(String ticketId);
+	
+	/**
+	 * Method for getting the state of the machine.
+	 * @return
+	 */
+	public AutomataState getState();
 	
 	/**
 	 * Exit means returning to the starting point of ticket automata.

@@ -1,0 +1,6 @@
+package trainticket.enums;
+
+
+public enum AutomataState {
+	FUNCTION_WAITING, INTERNETCODE_WAITING, STATION_WAITING, TIME_WAITING, PAYMENT_WAITING
+}
