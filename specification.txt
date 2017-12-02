@@ -1,0 +1,52 @@
+Specification of train-ticket booking automata
+----------------------------------------------
+----------------------------------------------
+
+In the beginning, the automata is waiting for 
+user input. It is possible to print a ticket 
+bought on the internet previously, or purchase 
+a ticket on the spot.
+
+In case of the internet ticket, the user 
+has to type a 10 digit code. If it is valid, 
+which means the code can be found in the ticket 
+code database, then the machine prints the 
+ticket and writes "Thank you for choosing 
+the railways!" to the output and deletes the code
+from the database. Then it returns to the waiting 
+state.
+If the database doesn't contain the code, then 
+it writes "Invalid code" to the output, and 
+waits for the code again.
+
+In case of ticket purchase, the user has to 
+give the following details:
+- the initial station,
+- the destination,
+- the time of departure.
+The user may return to the main interface between 
+these steps.
+If all of the above three information is accepted, 
+then the user has to choose the type of payment.
+
+Possible choices of payment:
+- cash,
+- credit card.
+
+In case of cash, the machine inspects the 
+banknote(s) or coin(s). When it has the 
+proper amount of money it prints the 
+ticket and writes "Thank you for choosing 
+the railways!" to the output, and returns the 
+change if needed. Then it returns to the 
+waiting state.
+
+In case of credit card, the user has to type in 
+her credit card's number. This number is checked, 
+then the transaction takes place. If everything 
+was successful, then it prints the ticket and 
+writes "Thank you for choosing the railways!" to 
+the output. 
+If something went wrong the user has to choose 
+the payment type again.
+
