@@ -1,0 +1,12 @@
+CATEGORIES
+price(I): 800
+cash(I): 500; 2000
+
+output(O): success; failure
+
+
+CONSTRAINTS
+payment failure: WHEN price IS 800 AND cash IS 500 THEN output IS failure 
+
+payment success: WHEN price IS 800 AND cash IS 2000 THEN output IS success 
+

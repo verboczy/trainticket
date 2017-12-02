@@ -1,0 +1,13 @@
+CATEGORIES
+valid card number(I): 5409321683433599; 4485041454669755
+invalid card number(I): dummy; 0000
+
+credit card(I): valid; invalid
+
+output(O): accepted; denied
+
+
+CONSTRAINTS
+valid credit card: GIVEN  credit card IS valid WHEN valid card number SOMEOF 5409321683433599; 4485041454669755 AND invalid card number IS SKIPPED THEN output IS accepted
+
+invalid credit card: GIVEN  credit card IS invalid WHEN invalid card number SOMEOF dummy; 0000 AND valid card number IS SKIPPED THEN output IS denied  

@@ -1,0 +1,10 @@
+CATEGORIES
+time(I): 11-00; 11-01
+
+output(O): success; failure
+
+
+CONSTRAINTS
+valid time: WHEN time IS 11-00 THEN output IS success 
+
+invalid time: WHEN time IS 11-01 THEN output IS failure 

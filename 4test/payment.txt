@@ -1,0 +1,16 @@
+CATEGORIES
+type(I): cash; credit card
+cash(F): payment success; payment failure
+credit card(F): valid credit card; invalid credit card
+
+output(O): success; failure
+
+
+CONSTRAINTS
+cash succes: WHEN type IS cash AND cash IS payment success AND credit card IS SKIPPED THEN output IS success
+
+cash failure: WHEN type  IS cash AND cash IS payment failure AND credit card IS SKIPPED THEN output IS failure 
+
+credit card succes: WHEN type IS credit card AND credit card IS valid credit card AND cash IS SKIPPED THEN output IS success 
+
+credit card failure: WHEN type IS credit card AND credit card IS invalid credit card AND cash IS SKIPPED THEN output IS failure 

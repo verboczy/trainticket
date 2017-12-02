@@ -1,0 +1,22 @@
+CATEGORIES
+valid station(I): Pécs; Budapest
+invalid station(I): New York
+
+from station(I): valid; invalid 
+to station(I): valid; invalid
+output(O): success; failure
+
+
+CONSTRAINTS
+from station invalid: WHEN from station IS invalid AND invalid station IS New York AND to station IS IR THEN output IS failure
+
+to invalid station: GIVEN from station IS valid AND valid station IS IR WHEN to station IS invalid AND invalid station IS New York THEN output IS failure 
+
+PRECONDITION from station IS valid
+to valid station - Pécs->Budapest: WHEN valid station IS Pécs WHEN to station IS valid AND valid station IS Budapest AND invalid station IS SKIPPED THEN output IS success 
+
+to valid station - Budapest->Pécs: WHEN valid station IS Budapest  WHEN to station IS valid AND valid station IS Pécs AND invalid station IS SKIPPED THEN output IS success 
+
+to same station - Budapest: GIVEN from station IS valid AND valid station IS Budapest WHEN to station IS valid AND valid station IS Budapest AND invalid station IS SKIPPED  THEN output IS failure 
+
+to same station - Pécs: GIVEN from station IS valid AND valid station IS Pécs WHEN to station IS valid AND valid station IS Pécs AND invalid station IS SKIPPED  THEN output IS failure 

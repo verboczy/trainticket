@@ -1,0 +1,11 @@
+CATEGORIES
+valid code(I): 0000000000
+invalid code(I): 00000
+
+code (I): valid(S); invalid
+output (O): ticket printed; invalid code
+
+
+CONSTRAINTS
+success: WHEN code IS valid AND valid code IS 0000000000 AND invalid code IS SKIPPED THEN output IS ticket printed
+failure: WHEN code IS invalid AND invalid code IS 00000 AND valid code IS SKIPPED THEN output IS invalid code

@@ -1,0 +1,10 @@
+CATEGORIES
+choose function(I): internet; purchase
+internet ticket(F): success; failure 
+ticket purchase(F): fail at station; time fail; payment fail; payment success; 
+automata state(O): wait for function; wait for code; wait for station; wait for time; wait for payment
+
+CONSTRAINTS
+internet ticket: GIVEN choose function IS internet WHEN internet ticket IS success | failure AND ticket purchase IS SKIPPED THEN automata state IS wait for function | wait for code
+
+ticket purchase: GIVEN choose function IS purchase WHEN ticket purchase IS fail at station | time fail | payment fail | payment success AND internet ticket  IS SKIPPED THEN automata state IS wait for station | wait for time | wait for payment | wait for function

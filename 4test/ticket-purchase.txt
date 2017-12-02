@@ -1,0 +1,18 @@
+CATEGORIES
+stations(F): from station invalid; to invalid station; to same station - Budapest; to valid station - Budapest->Pécs
+time(F): valid time; invalid time
+payment(F): cash succes; cash failure; credit card succes; credit card failure
+
+output(O): ticket printed; problem occurred
+
+
+CONSTRAINTS
+fail at station(ONLY stations): WHEN stations SOMEOF  from station invalid; to invalid station; to same station - Budapest THEN output IS problem occurred
+
+PRECONDITION stations IS to valid station - Budapest->Pécs 
+time fail(ONLY time): WHEN time IS invalid time THEN output IS problem occurred 
+
+PRECONDITION stations IS to invalid station AND time IS valid time 
+payment success: WHEN payment SOMEOF cash succes; credit card succes THEN output IS ticket printed 
+
+payment fail: WHEN payment SOMEOF cash failure; credit card failure THEN output IS problem occurred 
