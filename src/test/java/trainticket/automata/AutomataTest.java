@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import trainticket.enums.AutomataState;
 import trainticket.enums.Function;
 import trainticket.enums.PaymentType;
 
@@ -111,9 +112,11 @@ public class AutomataTest {
 		// Choose internet ticket function
 		sut.chooseFunction(Function.INTERNET_TICKET);
 		// Grant valid code
-		assertEquals(sut.grantCode(validCode), true);
+		assertEquals(true, sut.grantCode(validCode));
 		// Print ticket
-		assertEquals(sut.printTicket(validCode), true);
+		assertEquals(true, sut.printTicket(validCode));
+		
+		assertEquals(AutomataState.FUNCTION_WAITING, sut.getState());
 	}
 	
 	
@@ -123,9 +126,11 @@ public class AutomataTest {
 		// Choose internet ticket function
 		sut.chooseFunction(Function.INTERNET_TICKET);
 		// Grant invalid code
-		assertEquals(sut.grantCode(invalidCode), false);
+		assertEquals(false, sut.grantCode(invalidCode));
 		// Grant invalid code
-		assertEquals(sut.grantCode(invalidCode), false);
+		assertEquals(false, sut.grantCode(invalidCode));
+		
+		assertEquals(AutomataState.INTERNETCODE_WAITING, sut.getState());
 	}
 	
 	
@@ -135,7 +140,9 @@ public class AutomataTest {
 		// Choose ticket purchase function
 		sut.chooseFunction(Function.PURCHASE_TICKET);
 		// Grant invalid station
-		assertEquals(sut.fromStation(invalidStation), false);
+		assertEquals(false, sut.fromStation(invalidStation));
+		
+		assertEquals(AutomataState.STATION_WAITING, sut.getState());
 	}
 	
 	
@@ -145,9 +152,11 @@ public class AutomataTest {
 		// Choose ticket purchase function
 		sut.chooseFunction(Function.PURCHASE_TICKET);
 		// Grant valid station
-		assertEquals(sut.fromStation(validFrom), true);
+		assertEquals(true, sut.fromStation(validFrom));
 		// Grant the same station
-		assertEquals(sut.toStation(sameToAsFrom), false);
+		assertEquals(false, sut.toStation(sameToAsFrom));
+		
+		assertEquals(AutomataState.STATION_WAITING, sut.getState());
 	}
 	
 	
@@ -157,11 +166,13 @@ public class AutomataTest {
 		// Choose ticket purchase function
 		sut.chooseFunction(Function.PURCHASE_TICKET);
 		// Grant valid station
-		assertEquals(sut.fromStation(validFrom), true);
+		assertEquals(true, sut.fromStation(validFrom));
 		// Grant valid to
-		assertEquals(sut.toStation(validTo), true);
+		assertEquals(true, sut.toStation(validTo));
 		// Grant invalid time
-		assertEquals(sut.leavingTime(invalidTime), false);
+		assertEquals(false, sut.leavingTime(invalidTime));
+		
+		assertEquals(AutomataState.TIME_WAITING, sut.getState());
 	}
 	
 	
@@ -171,15 +182,17 @@ public class AutomataTest {
 		// Choose ticket purchase function
 		sut.chooseFunction(Function.PURCHASE_TICKET);
 		// Grant valid from
-		assertEquals(sut.fromStation(validFrom), true);
+		assertEquals(true, sut.fromStation(validFrom));
 		// Grant valid to
-		assertEquals(sut.toStation(validTo), true);
+		assertEquals(true, sut.toStation(validTo));
 		// Grant valid time
-		assertEquals(sut.leavingTime(validTime), true);
+		assertEquals(true, sut.leavingTime(validTime));
 		// Choose credit card payment
 		sut.paymentType(PaymentType.CREDITCARD);
 		// Grant invalid credit card number
-		assertEquals(sut.payWithCreditCard(invalidCreditCard), false);
+		assertEquals(false, sut.payWithCreditCard(invalidCreditCard));
+		
+		assertEquals(AutomataState.PAYMENT_WAITING, sut.getState());
 	}
 	
 	
@@ -189,17 +202,19 @@ public class AutomataTest {
 		// Choose ticket purchase function
 		sut.chooseFunction(Function.PURCHASE_TICKET);
 		// Grant valid from
-		assertEquals(sut.fromStation(validFrom), true);
+		assertEquals(true, sut.fromStation(validFrom));
 		// Grant valid to
-		assertEquals(sut.toStation(validTo), true);
+		assertEquals(true, sut.toStation(validTo));
 		// Grant valid time
-		assertEquals(sut.leavingTime(validTime), true);
+		assertEquals(true, sut.leavingTime(validTime));
 		// Choose credit card payment
 		sut.paymentType(PaymentType.CREDITCARD);
 		// Grant valid credit card number
-		assertEquals(sut.payWithCreditCard(validCreditCard), true);
+		assertEquals(true, sut.payWithCreditCard(validCreditCard));
 		// Print ticket
-		assertEquals(sut.printTicket(ticketId.toString()), true);
+		assertEquals(true, sut.printTicket(ticketId.toString()));
+		
+		assertEquals(AutomataState.FUNCTION_WAITING, sut.getState());
 	}
 	
 }
